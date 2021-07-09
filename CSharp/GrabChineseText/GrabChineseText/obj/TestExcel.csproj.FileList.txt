@@ -1,0 +1,9 @@
+bin\Debug\DefData2ExcelFile.exe
+bin\Debug\DefData2ExcelFile.pdb
+obj\Debug\ResolveAssemblyReference.cache
+obj\Debug\TestExcel.Form1.resources
+obj\Debug\TestExcel.Properties.Resources.resources
+obj\Debug\TestExcel.WaitingForm.resources
+obj\Debug\TestExcel.csproj.GenerateResource.Cache
+obj\Debug\DefData2ExcelFile.exe
+obj\Debug\DefData2ExcelFile.pdb

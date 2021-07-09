@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrabChineseText", "GrabChineseText\GrabChineseText.csproj", "{58EF3F5C-B169-49CE-BD89-5260EAFEBE32}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0365AFA5-9F02-4AE5-89C0-05F188184B92} = {0365AFA5-9F02-4AE5-89C0-05F188184B92}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "..\..\..\Public\Common\Common.csproj", "{0365AFA5-9F02-4AE5-89C0-05F188184B92}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{58EF3F5C-B169-49CE-BD89-5260EAFEBE32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58EF3F5C-B169-49CE-BD89-5260EAFEBE32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58EF3F5C-B169-49CE-BD89-5260EAFEBE32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58EF3F5C-B169-49CE-BD89-5260EAFEBE32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0365AFA5-9F02-4AE5-89C0-05F188184B92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0365AFA5-9F02-4AE5-89C0-05F188184B92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0365AFA5-9F02-4AE5-89C0-05F188184B92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0365AFA5-9F02-4AE5-89C0-05F188184B92}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

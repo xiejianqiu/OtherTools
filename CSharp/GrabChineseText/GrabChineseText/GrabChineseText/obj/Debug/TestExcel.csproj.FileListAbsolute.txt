@@ -1,0 +1,6 @@
+H:\Thai_ob20181019\TestExcel\TestExcel\TestExcel\obj\Debug\DefData2ExcelFile.exe
+H:\Thai_ob20181019\TestExcel\TestExcel\TestExcel\obj\Debug\DefData2ExcelFile.pdb
+H:\Thai_ob20181019\TestExcel\TestExcel\TestExcel\obj\Debug\TestExcel.csprojResolveAssemblyReference.cache
+H:\Thai_ob20181019\TestExcel\TestExcel\TestExcel\obj\Debug\TestExcel.Properties.Resources.resources
+H:\Thai_ob20181019\TestExcel\TestExcel\TestExcel\obj\Debug\TestExcel.WaitingForm.resources
+H:\Thai_ob20181019\TestExcel\TestExcel\TestExcel\obj\Debug\TestExcel.csproj.GenerateResource.Cache
