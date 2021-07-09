@@ -33,6 +33,7 @@ public class AtlasChecker : EditorWindow
     #region 查找图集被哪些资源引用
     private Dictionary<GameObject, List<UISprite>> atlasUISpDict;
     private bool bUseAtlasUI = false;
+    private bool bUseFilter = false;
     #endregion
     #region 查找当个UI用到的图集信息
     Dictionary<GameObject, Dictionary<UIAtlas, List<UISprite>>> mUIAtlasSpDic;
@@ -94,7 +95,7 @@ public class AtlasChecker : EditorWindow
                     {
                         if (null != sp.atlas && atlasSet.Contains(sp.atlas))
                         {
-                            list.Add($"{sp.atlas.name}  {sp.name}");
+                            list.Add($"({sp.atlas.name}){sp.spriteName} {sp.name}   {(null == sp.atlas.GetSprite(sp.spriteName) ? "丢失" : "")}");
                         }
                     }
                     var allDependency = AssetDatabase.GetDependencies(assetPath);
@@ -190,12 +191,18 @@ public class AtlasChecker : EditorWindow
                         }
                     }
                 }
+
+                List<UIAtlas> sortList = new List<UIAtlas>(atlasSet);
+                sortList.Sort((a, b)=> {
+                    return b.texture.width - a.texture.width;
+                });
+
                 string filePath = GetFilePath("use_atlas");
                 using (var fs = File.OpenWrite(filePath))
                 {
                     StreamWriter fileWriter = new StreamWriter(fs);
                     int index = 0;
-                    foreach (var atlas in atlasSet)
+                    foreach (var atlas in sortList)
                     {
                         EditorUtility.DisplayCancelableProgressBar("提示", "正在写入文件...", ++index * 1f / atlasDict.Count);
                         long curAtlasSize = Profiler.GetRuntimeMemorySizeLong(atlas.texture);
@@ -214,6 +221,7 @@ public class AtlasChecker : EditorWindow
         #region 引用指定图集的sprite查找与图集替换
         if (bSelect)
         {
+            bUseFilter = GUILayout.Toggle(bUseFilter, "使用名称过滤"); ;
             GUILayout.BeginHorizontal();
             GUILayout.Label("目标图集", GUILayout.ExpandWidth(false));
             tarAtlasObj = EditorGUILayout.ObjectField(tarAtlasObj, typeof(UIAtlas), false);
@@ -222,41 +230,241 @@ public class AtlasChecker : EditorWindow
             GUILayout.Label("原图集", GUILayout.ExpandWidth(false));
             srcAtlasObj = EditorGUILayout.ObjectField(srcAtlasObj, typeof(UIAtlas), false);
             GUILayout.EndHorizontal();
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("sp开头:", GUILayout.ExpandWidth(false));
-            spriteFilter = GUILayout.TextField(spriteFilter, GUILayout.ExpandWidth(true));
-            GUILayout.EndHorizontal();
-            if (null != srcAtlasObj &&!string.IsNullOrEmpty(spriteFilter) && GUILayout.Button($"查找使用图集{srcAtlasObj.name},且sp名称以{spriteFilter}开头", GUILayout.MinWidth(40)))
+            if (bUseFilter)
             {
-                atlasSpDict = new Dictionary<GameObject, List<UISprite>>();
-                var guids = AssetDatabase.FindAssets("t:prefab", new string[] { findPath });
-                int index = 0;
-                foreach (var guid in guids)
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("sp开头:", GUILayout.ExpandWidth(false));
+                spriteFilter = GUILayout.TextField(spriteFilter, GUILayout.ExpandWidth(true));
+                GUILayout.EndHorizontal();
+                if (bUseFilter && null != srcAtlasObj && !string.IsNullOrEmpty(spriteFilter) && GUILayout.Button($"查找使用图集{srcAtlasObj.name},且sp名称以{spriteFilter}开头", GUILayout.MinWidth(40)))
                 {
-                    index++;
-                    EditorUtility.DisplayCancelableProgressBar("提示", "正在查找...", index * 1f / guids.Length);
-                    var assetPath = AssetDatabase.GUIDToAssetPath(guid);
-                    var asset = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
-                    var sprites = asset.GetComponentsInChildren<UISprite>(true);
-                    if (!atlasSpDict.TryGetValue(asset, out var list))
+                    atlasSpDict = new Dictionary<GameObject, List<UISprite>>();
+                    var guids = AssetDatabase.FindAssets("t:prefab", new string[] { findPath });
+                    int index = 0;
+                    foreach (var guid in guids)
                     {
-                        list = new List<UISprite>();
-                        atlasSpDict[asset] = list;
-                    }
-                    foreach (var sp in sprites)
-                    {
-                        if (null != sp.atlas && Object.ReferenceEquals(sp.atlas, srcAtlasObj))
+                        index++;
+                        EditorUtility.DisplayCancelableProgressBar("提示", "正在查找...", index * 1f / guids.Length);
+                        var assetPath = AssetDatabase.GUIDToAssetPath(guid);
+                        var asset = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+                        var sprites = asset.GetComponentsInChildren<UISprite>(true);
+                        if (!atlasSpDict.TryGetValue(asset, out var list))
                         {
-                            if (sp.spriteName.StartsWith(spriteFilter))
+                            list = new List<UISprite>();
+                            atlasSpDict[asset] = list;
+                        }
+                        foreach (var sp in sprites)
+                        {
+                            if (null != sp.atlas && Object.ReferenceEquals(sp.atlas, srcAtlasObj))
+                            {
+                                if (sp.spriteName.StartsWith(spriteFilter))
+                                {
+                                    list.Add(sp);
+                                }
+                            }
+
+                        }
+                    }
+                    EditorUtility.ClearProgressBar();
+                    Resources.UnloadUnusedAssets();
+                }
+
+                if (bUseFilter && null != tarAtlasObj && null != atlasSpDict && atlasSpDict.Count > 0 && !string.IsNullOrEmpty(spriteFilter) && GUILayout.Button($"图集替换{srcAtlasObj.name}->{tarAtlasObj.name}", GUILayout.MinWidth(40)))
+                {
+                    UIAtlas tarAtlas = tarAtlasObj as UIAtlas;
+                    if (null == tarAtlas)
+                    {
+                        Debug.LogError("，目标图集为空！！");
+                        return;
+                    }
+                    int index = 0;
+                    var iter = atlasSpDict.GetEnumerator();
+                    while (iter.MoveNext())
+                    {
+                        index++;
+                        EditorUtility.DisplayCancelableProgressBar("提示", "正在替换...", index * 1f / atlasSpDict.Count);
+                        bool bChange = false;
+                        foreach (var cmp in iter.Current.Value)
+                        {
+                            if (null != cmp.atlas && Object.ReferenceEquals(cmp.atlas, srcAtlasObj))
+                            {
+                                if (cmp.spriteName.StartsWith(spriteFilter))
+                                {
+                                    if (null != tarAtlas.GetSprite(cmp.spriteName))
+                                    {
+                                        cmp.atlas = tarAtlas;
+                                        bChange = true;
+                                    }
+                                    else
+                                    {
+                                        Debug.LogError($"{tarAtlas.name} 不包含 {cmp.spriteName}");
+                                    }
+                                }
+                            }
+                        }
+                        if (bChange)
+                        {
+                            EditorUtility.SetDirty(iter.Current.Key);
+                        }
+                    }
+                    AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+                    AssetDatabase.SaveAssets();
+                    Resources.UnloadUnusedAssets();
+                    EditorUtility.ClearProgressBar();
+                }
+                if (null != tarAtlasObj && !string.IsNullOrEmpty(spriteFilter) && GUILayout.Button($"{spriteFilter}系sprite的图集{srcAtlasObj.name},重置图集为{tarAtlasObj.name}")) {
+                    UIAtlas tarAtlas = tarAtlasObj as UIAtlas;
+                    if (null == tarAtlas)
+                    {
+                        Debug.LogError("，目标图集为空！！");
+                        return;
+                    }
+                    int index = 0;
+                    var iter = atlasSpDict.GetEnumerator();
+                    while (iter.MoveNext())
+                    {
+                        index++;
+                        EditorUtility.DisplayCancelableProgressBar("提示", "正在替换...", index * 1f / atlasSpDict.Count);
+                        bool bChange = false;
+                        foreach (var cmp in iter.Current.Value)
+                        {
+                            if (null != cmp.atlas && Object.ReferenceEquals(cmp.atlas, srcAtlasObj))
+                            {
+                                if (cmp.spriteName.StartsWith(spriteFilter) && null == cmp.atlas.GetSprite(cmp.spriteName))
+                                {
+                                    cmp.atlas = tarAtlas;
+                                    bChange = true;
+                                }
+                            }
+                        }
+                        if (bChange)
+                        {
+                            EditorUtility.SetDirty(iter.Current.Key);
+                        }
+                    }
+                    AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+                    AssetDatabase.SaveAssets();
+                    Resources.UnloadUnusedAssets();
+                    EditorUtility.ClearProgressBar();
+                }
+
+                //if (bUseFilter && null != srcAtlasObj && !string.IsNullOrEmpty(spriteFilter) && GUILayout.Button($"***{srcAtlasObj.name}图集去除{spriteFilter}开头的sprite***", GUILayout.MinWidth(40)))
+                //{
+                //    List<SpriteEntry> sprites = new List<SpriteEntry>();
+                //    UIAtlasMaker.ExtractSprites(srcAtlasObj as UIAtlas, sprites);
+                //    List<string> mDelNames = new List<string>();
+                //    foreach (var se in sprites)
+                //    {
+                //        if (se.name.StartsWith(spriteFilter))
+                //        {
+                //            mDelNames.Add(se.name);
+                //        }
+                //    }
+                //    for (int i = sprites.Count; i > 0;)
+                //    {
+                //        SpriteEntry ent = sprites[--i];
+                //        if (mDelNames.Contains(ent.name))
+                //            sprites.RemoveAt(i);
+                //    }
+
+                //    UIAtlasMaker.UpdateAtlas(srcAtlasObj as UIAtlas, sprites);
+                //    mDelNames.Clear();
+                //    NGUIEditorTools.RepaintSprites();
+                //    EditorUtility.SetDirty(srcAtlasObj);
+                //    AssetDatabase.SaveAssets();
+                //    AssetDatabase.Refresh();
+                //}
+
+            }
+            else {
+                if (null != srcAtlasObj && GUILayout.Button($"查找选中的sprite使用{srcAtlasObj.name}的图集", GUILayout.MinWidth(40)))
+                {
+                    UIAtlas srcAtlas = srcAtlasObj as UIAtlas;
+                    var objs = Selection.GetFiltered<Texture>(SelectionMode.Assets);
+                    HashSet<string> nameSet = new HashSet<string>();
+                    foreach (var obj in objs)
+                    {
+                        nameSet.Add(obj.name);
+                    }
+
+                    atlasSpDict = new Dictionary<GameObject, List<UISprite>>();
+                    var guids = AssetDatabase.FindAssets("t:prefab", new string[] { findPath });
+                    int index = 0;
+                    foreach (var guid in guids)
+                    {
+                        index++;
+                        EditorUtility.DisplayCancelableProgressBar("提示", "正在查找...", index * 1f / guids.Length);
+                        var assetPath = AssetDatabase.GUIDToAssetPath(guid);
+                        var asset = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+                        var sprites = asset.GetComponentsInChildren<UISprite>(true);
+                        if (!atlasSpDict.TryGetValue(asset, out var list))
+                        {
+                            list = new List<UISprite>();
+                            atlasSpDict[asset] = list;
+                        }
+                        foreach (var sp in sprites)
+                        {
+                            if (null != sp.atlas && object.ReferenceEquals(sp.atlas, srcAtlas) && nameSet.Contains(sp.spriteName))
                             {
                                 list.Add(sp);
                             }
-                        }
 
+                        }
                     }
+                    EditorUtility.ClearProgressBar();
+                    Resources.UnloadUnusedAssets();
                 }
-                EditorUtility.ClearProgressBar();
-                Resources.UnloadUnusedAssets();
+                if (null!=srcAtlasObj && null != tarAtlasObj && GUILayout.Button($"图集替换{srcAtlasObj.name}->{tarAtlasObj.name} 替换选中的图标"))
+                {
+
+                    UIAtlas tarAtlas = tarAtlasObj as UIAtlas;
+                    if (null == tarAtlas)
+                    {
+                        Debug.LogError("，目标图集为空！！");
+                        return;
+                    }
+                    var objs = Selection.GetFiltered<Texture>(SelectionMode.Assets);
+                    HashSet<string> nameSet = new HashSet<string>();
+                    foreach (var obj in objs)
+                    {
+                        nameSet.Add(obj.name);
+                    }
+                    int index = 0;
+                    var iter = atlasSpDict.GetEnumerator();
+                    while (iter.MoveNext())
+                    {
+                        index++;
+                        EditorUtility.DisplayCancelableProgressBar("提示", "正在替换...", index * 1f / atlasSpDict.Count);
+                        bool bChange = false;
+                        foreach (var cmp in iter.Current.Value)
+                        {
+                            if (null != cmp.atlas && Object.ReferenceEquals(cmp.atlas, srcAtlasObj))
+                            {
+                                if (nameSet.Contains(cmp.spriteName))
+                                {
+                                    if (null != tarAtlas.GetSprite(cmp.spriteName))
+                                    {
+                                        cmp.atlas = tarAtlas;
+                                        bChange = true;
+                                    }
+                                    else
+                                    {
+                                        Debug.LogError($"{tarAtlas.name} 不包含 {cmp.spriteName}");
+                                    }
+                                }
+                            }
+                        }
+                        if (bChange)
+                        {
+                            EditorUtility.SetDirty(iter.Current.Key);
+                        }
+                    }
+                    AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+                    AssetDatabase.SaveAssets();
+                    Resources.UnloadUnusedAssets();
+                    EditorUtility.ClearProgressBar();
+                }
+
             }
             if (null != atlasSpDict && atlasSpDict.Count > 0 && GUILayout.Button("导出到文件", GUILayout.MinWidth(40)))
             {
@@ -270,13 +478,14 @@ public class AtlasChecker : EditorWindow
                     {
                         index++;
                         EditorUtility.DisplayCancelableProgressBar("提示", "正在输出...", index * 1f / atlasSpDict.Count);
-                        if (iter.Current.Value.Count <= 0) {
+                        if (iter.Current.Value.Count <= 0)
+                        {
                             continue;
                         }
                         fileWriter.WriteLine($"{AssetDatabase.GetAssetPath(iter.Current.Key)}");
                         foreach (var sp in iter.Current.Value)
                         {
-                            fileWriter.WriteLine($"{sp.name}  {sp.spriteName}({sp.atlas.name})");
+                            fileWriter.WriteLine($"{sp.name}  {sp.spriteName}({sp.atlas.name}) {(null == sp.atlas.GetSprite(sp.spriteName) ? "丢失" : "")}");
                         }
                         fileWriter.WriteLine();
                     }
@@ -284,72 +493,6 @@ public class AtlasChecker : EditorWindow
                     EditorUtility.ClearProgressBar();
                     System.Diagnostics.Process.Start("notepad.exe", filePath);
                 }
-            }
-            if (null != tarAtlasObj && null != atlasSpDict && atlasSpDict.Count >0 && !string.IsNullOrEmpty(spriteFilter) && GUILayout.Button($"图集替换{srcAtlasObj.name}->{tarAtlasObj.name}", GUILayout.MinWidth(40)))
-            {
-                UIAtlas tarAtlas = tarAtlasObj as UIAtlas;
-                if (null == tarAtlas)
-                {
-                    Debug.LogError("，目标图集为空！！");
-                    return;
-                }
-                int index = 0;
-                var iter = atlasSpDict.GetEnumerator();
-                while (iter.MoveNext()) {
-                    index++;
-                    EditorUtility.DisplayCancelableProgressBar("提示", "正在替换...", index * 1f / atlasSpDict.Count);
-                    bool bChange = false;
-                    foreach (var cmp in iter.Current.Value)
-                    {
-                        if (null != cmp.atlas && Object.ReferenceEquals(cmp.atlas, srcAtlasObj))
-                        {
-                            if (cmp.spriteName.StartsWith(spriteFilter))
-                            {
-                                if (null != tarAtlas.GetSprite(cmp.spriteName))
-                                {
-                                    cmp.atlas = tarAtlas;
-                                    bChange = true;
-                                }
-                                else
-                                {
-                                    Debug.LogError($"{tarAtlas.name} 不包含 {cmp.spriteName}");
-                                }
-                            }
-                        }
-                    }
-                    if (bChange)
-                    {
-                        EditorUtility.SetDirty(iter.Current.Key);
-                    }
-                }
-                AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
-                AssetDatabase.SaveAssets();
-                Resources.UnloadUnusedAssets();
-                EditorUtility.ClearProgressBar();
-            }
-            
-            if (null != srcAtlasObj && !string.IsNullOrEmpty(spriteFilter) && GUILayout.Button($"***{srcAtlasObj.name}图集去除{spriteFilter}开头的sprite***", GUILayout.MinWidth(40))) {
-                List<SpriteEntry> sprites = new List<SpriteEntry>();
-                UIAtlasMaker.ExtractSprites(srcAtlasObj as UIAtlas, sprites);
-                List<string> mDelNames = new List<string>();
-                foreach (var se in sprites) {
-                    if (se.name.StartsWith(spriteFilter)) {
-                        mDelNames.Add(se.name);
-                    }
-                }
-                for (int i = sprites.Count; i > 0;)
-                {
-                    SpriteEntry ent = sprites[--i];
-                    if (mDelNames.Contains(ent.name))
-                        sprites.RemoveAt(i);
-                }
-
-                UIAtlasMaker.UpdateAtlas(srcAtlasObj as UIAtlas, sprites);
-                mDelNames.Clear();
-                NGUIEditorTools.RepaintSprites();
-                EditorUtility.SetDirty(srcAtlasObj);
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
             }
         }
         #endregion
@@ -410,7 +553,7 @@ public class AtlasChecker : EditorWindow
                         fileWriter.WriteLine($"{AssetDatabase.GetAssetPath(iter.Current.Key)}");
                         foreach (var sp in iter.Current.Value)
                         {
-                            fileWriter.WriteLine($"{sp.name}  {sp.spriteName}({sp.atlas.name})");
+                            fileWriter.WriteLine($"{sp.name}  {sp.spriteName}({sp.atlas.name}) {(null == sp.atlas.GetSprite(sp.spriteName) ? "丢失" : "")}");
                         }
                         fileWriter.WriteLine();
                     }
@@ -495,7 +638,7 @@ public class AtlasChecker : EditorWindow
                             }
                             fileWriter.WriteLine($"{iter2.Current.Key.name} {GetMemSize(iter2.Current.Key.texture)}");
                             foreach (var sp in iter2.Current.Value) {
-                                fileWriter.WriteLine($"{iter2.Current.Key.name} {sp.name}({sp.spriteName})");
+                                fileWriter.WriteLine($"{iter2.Current.Key.name} {sp.name}({sp.spriteName}) {(null == sp.atlas.GetSprite(sp.spriteName)?"丢失":"")}");
                             }
                         }
                         fileWriter.WriteLine();
