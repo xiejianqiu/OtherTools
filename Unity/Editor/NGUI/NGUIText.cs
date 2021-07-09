@@ -1391,11 +1391,15 @@ static public class NGUIText
                                     break;
                                 }
                             }
-                            if (-1 != spaceIndex)
-                            {
-                                sb[spaceIndex] = '\n';
+							if (-1 != spaceIndex)
+							{
+								sb[spaceIndex] = '\n';
 								forceChLine = true;
-                            }
+							}
+							else
+							{
+								EndLine(ref sb);
+							}
                         }
                         else
                         {
@@ -1472,10 +1476,14 @@ static public class NGUIText
                                     break;
                                 }
                             }
-                            if (-1 != spaceIndex)
-                            {
-                                sb[spaceIndex] = '\n';
-                            }
+							if (-1 != spaceIndex)
+							{
+								sb[spaceIndex] = '\n';
+							}
+							else 
+							{
+								EndLine(ref sb);
+							}
                         }
                         else
                         {
