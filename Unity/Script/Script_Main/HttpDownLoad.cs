@@ -54,6 +54,8 @@ public class HttpDownLoad
                 request.SendWebRequest();
 
                 var index = 0;
+                long tickSpan = 10000000 / 5;
+                long lastTicks = DateTime.Now.Ticks;
                 while (!request.isDone || fileLength < totalLength)
                 {
                     if (!string.IsNullOrEmpty(request.error))
@@ -62,7 +64,7 @@ public class HttpDownLoad
                         {
                             callBack(false, request.error);
                         }
-                        this.Stop();
+                        yield break;
                     }
                     if (isStop) break;
                     yield return null;
@@ -91,6 +93,11 @@ public class HttpDownLoad
                             if (null != OnProgressChange)
                             {
                                 OnProgressChange(progress);
+                            }
+                            if (DateTime.Now.Ticks - lastTicks >= tickSpan)
+                            {
+                                lastTicks = DateTime.Now.Ticks;
+                                yield return null;
                             }
                         }
                     }

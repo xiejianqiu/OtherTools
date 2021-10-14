@@ -175,6 +175,7 @@ public static class MyZipTool
             Directory.CreateDirectory(outPath);
         }
         int nCountOfFiles = 10000;
+        long allFileSize = 10000;
         try
         {
             Stream stream = File.OpenRead(zipFile);
@@ -184,6 +185,7 @@ public static class MyZipTool
                 while ((ent = zipTmpStream.GetNextEntry()) != null)
                 {
                     nCountOfFiles += 1;
+                    allFileSize += zipTmpStream.Length;
                 }
             }
         }
@@ -207,22 +209,19 @@ public static class MyZipTool
             {
                 zipStream.Password = password;
             }
-            Debug.Log($"### UnZipFileCo extract file count: nCountOfFiles:{nCountOfFiles}");
+            Debug.Log($"### UnZipFileCo extract file count: nCountOfFiles:{nCountOfFiles} allFileSize:{allFileSize * 1.0f / 1024 /1024}M");
             long tickSpan = 10000000 / 5;
             long lastTicks = DateTime.Now.Ticks;
-            int nCountOfExtract = 0;
-            int size = 2048;
+            long allWriteSize = 0;
+            int size = 1024;
             byte[] data_buffer = new byte[size];
             while (true)
             {
-                try
                 {
                     ent = zipStream.GetNextEntry();
                     if (null == ent) {
                         break;
                     }
-                    nCountOfExtract += 1;
-                    curProgress = nCountOfExtract * 1f / nCountOfFiles;
                     if (!string.IsNullOrEmpty(ent.Name))
                     {
                         fileName = Path.Combine(outPath, ent.Name);
@@ -239,6 +238,7 @@ public static class MyZipTool
                             {
                                 if (f.Length == zipStream.Length)
                                 {
+                                    allWriteSize += zipStream.Length;
                                     continue;
                                 }
                             }
@@ -246,36 +246,31 @@ public static class MyZipTool
                         using (FileStream fs = File.Create(fileName))
                         {
                             Array.Clear(data_buffer, 0, data_buffer.Length);
-                            while (true)
+                            while (true && ent.Size > 0)
                             {
                                 size = zipStream.Read(data_buffer, 0, data_buffer.Length);
                                 if (size > 0)
                                 {
                                     //fs.Write(data, 0, data.Length);
                                     fs.Write(data_buffer, 0, size);//解决读取不完整情况
+                                    allWriteSize += size;
+                                    curProgress = allWriteSize * 1f / allFileSize;
                                 }
                                 else
                                     break;
+                                if (DateTime.Now.Ticks - lastTicks >= tickSpan)
+                                {
+                                    if (null != OnProgressChange)
+                                    {
+                                        OnProgressChange(curProgress, UnZipStep.Progress);
+                                    }
+                                    lastTicks = DateTime.Now.Ticks;
+                                    yield return null;
+                                }
                             }
+
                         }
                     }
-                }
-                catch (Exception e) {
-                    Debug.LogError($"## UnZipFileCo {fileName} {e.ToString()}");
-                    if (null != OnProgressChange)
-                    {
-                        OnProgressChange(nCountOfExtract * 1f / zipStream.Length, UnZipStep.Fail);
-                    }
-                    yield break;
-                }
-                if (DateTime.Now.Ticks - lastTicks >= tickSpan) {
-                    if (null != OnProgressChange)
-                    {
-                        OnProgressChange(curProgress, UnZipStep.Progress);
-                    }
-                    lastTicks = DateTime.Now.Ticks;
-                    yield return null;
-                    GC.Collect();
                 }
             }
             if (null != OnProgressChange)
