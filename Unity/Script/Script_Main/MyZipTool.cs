@@ -3,124 +3,99 @@ using System;
 using System.Collections;
 using System.IO;
 using UnityEngine;
-
+using System.Threading;
 public static class MyZipTool
 {
     public enum UnZipStep{
+        None,
         Begin,
         Progress,
         Fail,
         Finish,
+        End,
     }
-    public static bool UnZipFile(byte[] ZipByte, string outPath, string password = "")
-    {
-        bool result = true;
-        FileStream fs = null;
-        ZipInputStream zipStream = null;
+    public static void UnZipFile(MonoBehaviour host, string zipFile, string outPath, bool  useThread = false, string password = "", Action<float, UnZipStep> OnProgressChange = null, Action<long> OnUnzipSpdChange = null) {
+        if (useThread)
+        {
+            new Thread(()=> {
+                try
+                {
+                    UnZipFileThread(zipFile, outPath, password, OnProgressChange, OnUnzipSpdChange);
+                }
+                catch (Exception e) {
+                    Debug.LogError($"### MyZipTool {zipFile}, {e.ToString()}");
+                    OnProgressChange(1f, UnZipStep.Fail);
+                }
+            }).Start();
+        }
+        else
+        {
+            host.StartCoroutine(UnZipFileCo(zipFile, outPath, password, OnProgressChange, OnUnzipSpdChange));
+        }
+    }
+    private static void UnZipFileThread(string zipFile, string outPath, string password = "", Action<float, UnZipStep> OnProgressChange = null, Action<long> OnUnzipSpdChange = null) {
         ZipEntry ent = null;
-        string fileName;
-
+        string fileName = string.Empty;
 
         if (!Directory.Exists(outPath))
         {
             Directory.CreateDirectory(outPath);
         }
+        int nCountOfFiles = 10000;
+        long allFileSize = 10000;
         try
         {
-            //直接使用 将byte转换为Stream，省去先保存到本地在解压的过程
-            Stream stream = new MemoryStream(ZipByte);
-            zipStream = new ZipInputStream(stream);
-
-            if (!string.IsNullOrEmpty(password))
+            Stream stream = File.OpenRead(zipFile);
+            using (ZipInputStream zipTmpStream = new ZipInputStream(stream))
             {
-                zipStream.Password = password;
-            }
-            while ((ent = zipStream.GetNextEntry()) != null)
-            {
-                if (!string.IsNullOrEmpty(ent.Name))
+                nCountOfFiles = 0;
+                while ((ent = zipTmpStream.GetNextEntry()) != null)
                 {
-                    fileName = Path.Combine(outPath, ent.Name);
-
-                    #region      Android
-                    fileName = fileName.Replace('\\', '/');
-
-                    if (fileName.EndsWith("/"))
-                    {
-                        Directory.CreateDirectory(fileName);
-                        continue;
-                    }
-                    #endregion
-                    fs = File.Create(fileName);
-
-                    int size = 2048;
-                    byte[] data = new byte[size];
-                    while (true)
-                    {
-                        size = zipStream.Read(data, 0, data.Length);
-                        if (size > 0)
-                        {
-                            //fs.Write(data, 0, data.Length);
-                            fs.Write(data, 0, size);//解决读取不完整情况
-                        }
-                        else
-                            break;
-                    }
+                    nCountOfFiles += 1;
+                    allFileSize += zipTmpStream.Length;
                 }
             }
         }
         catch (Exception e)
         {
-            Debug.Log(e.ToString());
-            result = false;
-        }
-        finally
-        {
-            if (fs != null)
+            Debug.LogError($"## UnZipFileCo  {e.ToString()}");
+            if (null != OnProgressChange)
             {
-                fs.Close();
-                fs.Dispose();
+                OnProgressChange(1f, UnZipStep.Fail);
             }
-            if (zipStream != null)
-            {
-                zipStream.Close();
-                zipStream.Dispose();
-            }
-            if (ent != null)
-            {
-                ent = null;
-            }
-            GC.Collect();
-            GC.Collect(1);
+            return;
         }
-        return result;
-    }
-    public static bool UnZipFile(string zipFile, string outPath, string password = "")
-    {
-        bool result = true;
-        ZipEntry ent = null;
-        string fileName;
-
-
-        if (!Directory.Exists(outPath))
+        float curProgress = 0f;
+        if (null != OnProgressChange)
         {
-            Directory.CreateDirectory(outPath);
+            OnProgressChange(curProgress, UnZipStep.Begin);
         }
-        try
+        Stream stream2 = File.OpenRead(zipFile);
+        using (ZipInputStream zipStream = new ZipInputStream(stream2))
         {
-            Stream stream = File.OpenRead(zipFile);
-            using (ZipInputStream zipStream = new ZipInputStream(stream))
+            if (!string.IsNullOrEmpty(password))
             {
-                if (!string.IsNullOrEmpty(password))
+                zipStream.Password = password;
+            }
+            Debug.Log($"### UnZipFileCo extract file count: nCountOfFiles:{nCountOfFiles} allFileSize:{allFileSize * 1.0f / 1024 / 1024}M");
+            long tickSpan = 10000000 / 5;
+            long lastTicks = DateTime.Now.Ticks;
+            long lastSecondTicks = 0;
+            long allWriteSize = 0;
+            long unzipSizePerSec = 0;
+            int size = 1<<22;
+            byte[] data_buffer = new byte[size];
+            while (true)
+            {
                 {
-                    zipStream.Password = password;
-                }
-                while ((ent = zipStream.GetNextEntry()) != null)
-                {
+                    ent = zipStream.GetNextEntry();
+                    if (null == ent)
+                    {
+                        break;
+                    }
                     if (!string.IsNullOrEmpty(ent.Name))
                     {
                         fileName = Path.Combine(outPath, ent.Name);
-
-
                         fileName = fileName.Replace('\\', '/');
 
                         if (fileName.EndsWith("/"))
@@ -128,44 +103,64 @@ public static class MyZipTool
                             Directory.CreateDirectory(fileName);
                             continue;
                         }
-
+                        if (File.Exists(fileName))
+                        {
+                            using (var f = File.Open(fileName, FileMode.Open))
+                            {
+                                if (f.Length == zipStream.Length)
+                                {
+                                    allWriteSize += zipStream.Length;
+                                    continue;
+                                }
+                            }
+                        }
                         using (FileStream fs = File.Create(fileName))
                         {
-                            int size = 2048;
-                            byte[] data = new byte[size];
-                            while (true)
+                            Array.Clear(data_buffer, 0, data_buffer.Length);
+                            while (true && ent.Size > 0)
                             {
-                                size = zipStream.Read(data, 0, data.Length);
+                                size = zipStream.Read(data_buffer, 0, data_buffer.Length);
                                 if (size > 0)
                                 {
                                     //fs.Write(data, 0, data.Length);
-                                    fs.Write(data, 0, size);//解决读取不完整情况
+                                    fs.Write(data_buffer, 0, size);//解决读取不完整情况
+                                    allWriteSize += size;
+                                    curProgress = allWriteSize * 1f / allFileSize;
+                                    unzipSizePerSec += size;
                                 }
                                 else
                                     break;
+                                var ticks = DateTime.Now.Ticks - lastSecondTicks;
+                                if (ticks >= 10000000)
+                                {
+                                    if (null != OnUnzipSpdChange)
+                                    {
+                                        OnUnzipSpdChange((long)(unzipSizePerSec * 1f / (ticks * 1f / 10000000)));
+                                        unzipSizePerSec = 0;
+                                    }
+                                    lastSecondTicks = DateTime.Now.Ticks;
+                                }
+                                else if (ticks >= tickSpan)
+                                {
+                                    if (null != OnProgressChange)
+                                    {
+                                        OnProgressChange(curProgress, UnZipStep.Progress);
+                                    }
+                                    lastTicks = DateTime.Now.Ticks;
+                                }
                             }
+
                         }
                     }
                 }
             }
-        }
-        catch (Exception e)
-        {
-            Debug.Log(e.ToString());
-            result = false;
-        }
-        finally
-        {
-            if (ent != null)
+            if (null != OnProgressChange)
             {
-                ent = null;
+                OnProgressChange(1f, UnZipStep.Finish);
             }
-            GC.Collect();
-            GC.Collect(1);
         }
-        return result;
     }
-    public static IEnumerator UnZipFileCo(string zipFile, string outPath, string password = "", Action<float, UnZipStep> OnProgressChange = null)
+    private static IEnumerator UnZipFileCo(string zipFile, string outPath, string password = "", Action<float, UnZipStep> OnProgressChange = null, Action<long> OnUnzipSpdChange=null)
     {
         ZipEntry ent = null;
         string fileName = string.Empty;
@@ -212,8 +207,10 @@ public static class MyZipTool
             Debug.Log($"### UnZipFileCo extract file count: nCountOfFiles:{nCountOfFiles} allFileSize:{allFileSize * 1.0f / 1024 /1024}M");
             long tickSpan = 10000000 / 5;
             long lastTicks = DateTime.Now.Ticks;
+            long lastSecondTicks = 0;
             long allWriteSize = 0;
-            int size = 1024;
+            long unzipSizePerSec = 0;
+            int size = 1 << 22;
             byte[] data_buffer = new byte[size];
             while (true)
             {
@@ -255,17 +252,31 @@ public static class MyZipTool
                                     fs.Write(data_buffer, 0, size);//解决读取不完整情况
                                     allWriteSize += size;
                                     curProgress = allWriteSize * 1f / allFileSize;
+                                    unzipSizePerSec += size;
                                 }
                                 else
                                     break;
-                                if (DateTime.Now.Ticks - lastTicks >= tickSpan)
+
+                                var ticks = DateTime.Now.Ticks - lastSecondTicks;
+                                if (ticks >= 10000000)
+                                {
+                                    if (null != OnUnzipSpdChange)
+                                    {
+                                        OnUnzipSpdChange((long)(unzipSizePerSec * 1f / (ticks * 1f / 10000000)));
+                                        unzipSizePerSec = 0;
+                                    }
+                                    yield return new WaitForEndOfFrame();
+                                    lastSecondTicks = DateTime.Now.Ticks;
+                                }
+                                else if (ticks >= tickSpan)
                                 {
                                     if (null != OnProgressChange)
                                     {
                                         OnProgressChange(curProgress, UnZipStep.Progress);
                                     }
+
+                                    yield return new WaitForEndOfFrame();
                                     lastTicks = DateTime.Now.Ticks;
-                                    yield return null;
                                 }
                             }
 
