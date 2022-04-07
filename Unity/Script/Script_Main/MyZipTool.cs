@@ -4,7 +4,7 @@ using System.Collections;
 using System.IO;
 using UnityEngine;
 using System.Threading;
-public static class MyZipTool
+public static partial class MyZipTool
 {
     public enum UnZipStep{
         None,
@@ -14,7 +14,7 @@ public static class MyZipTool
         Finish,
         End,
     }
-    public static void UnZipFile(MonoBehaviour host, string zipFile, string outPath, bool  useThread = false, string password = "", Action<float, UnZipStep> OnProgressChange = null, Action<long> OnUnzipSpdChange = null) {
+    public static void UnZipFile(MonoBehaviour host, string zipFile, string outPath, bool  useThread = false, string password = "", Action<float, UnZipStep,string> OnProgressChange = null, Action<long> OnUnzipSpdChange = null) {
         if (useThread)
         {
             new Thread(()=> {
@@ -24,7 +24,7 @@ public static class MyZipTool
                 }
                 catch (Exception e) {
                     Debug.LogError($"### MyZipTool {zipFile}, {e.ToString()}");
-                    OnProgressChange(1f, UnZipStep.Fail);
+                    OnProgressChange(1f, UnZipStep.Fail,e.ToString());
                 }
             }).Start();
         }
@@ -33,19 +33,17 @@ public static class MyZipTool
             host.StartCoroutine(UnZipFileCo(zipFile, outPath, password, OnProgressChange, OnUnzipSpdChange));
         }
     }
-    private static void UnZipFileThread(string zipFile, string outPath, string password = "", Action<float, UnZipStep> OnProgressChange = null, Action<long> OnUnzipSpdChange = null) {
+    private static void UnZipFileThread(string zipFile, string outPath, string password = "", Action<float, UnZipStep, string> OnProgressChange = null, Action<long> OnUnzipSpdChange = null) {
         ZipEntry ent = null;
         string fileName = string.Empty;
 
-        if (!Directory.Exists(outPath))
-        {
-            Directory.CreateDirectory(outPath);
-        }
+
         int nCountOfFiles = 10000;
         long allFileSize = 10000;
         try
         {
             Stream stream = File.OpenRead(zipFile);
+            stream.Position = 0;
             using (ZipInputStream zipTmpStream = new ZipInputStream(stream))
             {
                 nCountOfFiles = 0;
@@ -61,18 +59,20 @@ public static class MyZipTool
             Debug.LogError($"## UnZipFileCo  {e.ToString()}");
             if (null != OnProgressChange)
             {
-                OnProgressChange(1f, UnZipStep.Fail);
+                OnProgressChange(1f, UnZipStep.Fail,e.ToString());
             }
             return;
         }
         float curProgress = 0f;
         if (null != OnProgressChange)
         {
-            OnProgressChange(curProgress, UnZipStep.Begin);
+            OnProgressChange(curProgress, UnZipStep.Begin, "");
         }
         Stream stream2 = File.OpenRead(zipFile);
+        stream2.Position = 0;
         using (ZipInputStream zipStream = new ZipInputStream(stream2))
         {
+            //zipStream.Position = 0;
             if (!string.IsNullOrEmpty(password))
             {
                 zipStream.Password = password;
@@ -144,7 +144,7 @@ public static class MyZipTool
                                 {
                                     if (null != OnProgressChange)
                                     {
-                                        OnProgressChange(curProgress, UnZipStep.Progress);
+                                        OnProgressChange(curProgress, UnZipStep.Progress, "");
                                     }
                                     lastTicks = DateTime.Now.Ticks;
                                 }
@@ -156,11 +156,11 @@ public static class MyZipTool
             }
             if (null != OnProgressChange)
             {
-                OnProgressChange(1f, UnZipStep.Finish);
+                OnProgressChange(1f, UnZipStep.Finish, "");
             }
         }
     }
-    private static IEnumerator UnZipFileCo(string zipFile, string outPath, string password = "", Action<float, UnZipStep> OnProgressChange = null, Action<long> OnUnzipSpdChange=null)
+    private static IEnumerator UnZipFileCo(string zipFile, string outPath, string password = "", Action<float, UnZipStep, string> OnProgressChange = null, Action<long> OnUnzipSpdChange = null)
     {
         ZipEntry ent = null;
         string fileName = string.Empty;
@@ -188,14 +188,14 @@ public static class MyZipTool
             Debug.LogError($"## UnZipFileCo  {e.ToString()}");
             if (null != OnProgressChange)
             {
-                OnProgressChange(1f, UnZipStep.Fail);
+                OnProgressChange(1f, UnZipStep.Fail, e.ToString());
             }
             yield break;
         }
         float curProgress = 0f;
         if (null != OnProgressChange)
         {
-            OnProgressChange(curProgress, UnZipStep.Begin);
+            OnProgressChange(curProgress, UnZipStep.Begin, "");
         }
         Stream stream2 = File.OpenRead(zipFile);
         using (ZipInputStream zipStream = new ZipInputStream(stream2))
@@ -204,8 +204,8 @@ public static class MyZipTool
             {
                 zipStream.Password = password;
             }
-            Debug.Log($"### UnZipFileCo extract file count: nCountOfFiles:{nCountOfFiles} allFileSize:{allFileSize * 1.0f / 1024 /1024}M");
-            long tickSpan = 10000000 / 5;
+            Debug.Log($"### UnZipFileCo extract file count: nCountOfFiles:{nCountOfFiles} allFileSize:{allFileSize * 1.0f / 1024 / 1024}M");
+            long tickSpan = 10000000 / 10;
             long lastTicks = DateTime.Now.Ticks;
             long lastSecondTicks = 0;
             long allWriteSize = 0;
@@ -272,7 +272,7 @@ public static class MyZipTool
                                 {
                                     if (null != OnProgressChange)
                                     {
-                                        OnProgressChange(curProgress, UnZipStep.Progress);
+                                        OnProgressChange(curProgress, UnZipStep.Progress, "");
                                     }
 
                                     yield return new WaitForEndOfFrame();
@@ -286,7 +286,7 @@ public static class MyZipTool
             }
             if (null != OnProgressChange)
             {
-                OnProgressChange(1f, UnZipStep.Finish);
+                OnProgressChange(1f, UnZipStep.Finish, "");
             }
         }
     }
