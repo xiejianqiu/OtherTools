@@ -17,19 +17,32 @@ public static partial class MyZipTool
         ZipEntry ent = null;
         int nCountOfFiles = 0;
         long allFileSize = 0;
-        foreach (var patch in patchLst)
+        try
         {
-            string zipFile = $"{PathConfig.Instance.DownLoadCachePath}/{patch.name}";
-            Stream stream = File.OpenRead(zipFile);
-            stream.Position = 0;
-            using (ZipInputStream zipTmpStream = new ZipInputStream(stream))
+            foreach (var patch in patchLst)
             {
-                while ((ent = zipTmpStream.GetNextEntry()) != null)
+                string zipFile = $"{PathConfig.Instance.DownLoadCachePath}/{patch.name}";
+                Stream stream = File.OpenRead(zipFile);
+                stream.Position = 0;
+                using (ZipInputStream zipTmpStream = new ZipInputStream(stream))
                 {
-                    nCountOfFiles += 1;
-                    allFileSize += zipTmpStream.Length;
+                    while ((ent = zipTmpStream.GetNextEntry()) != null)
+                    {
+                        nCountOfFiles += 1;
+                        allFileSize += zipTmpStream.Length;
+                        //throw new Exception("Disk full");
+                    }
                 }
             }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"### UnZipFileCo  {e.ToString()}");
+            if (null != OnProgressChange)
+            {
+                OnProgressChange(1f, UnZipStep.Fail, e.ToString());
+            }
+            yield break;
         }
         Debug.Log($"### UnZipFileCo extract file count: nCountOfFiles:{nCountOfFiles} allFileSize:{allFileSize * 1.0f / 1024 / 1024}M");
         float curProgress = 0f;
@@ -49,7 +62,12 @@ public static partial class MyZipTool
             {
                 OnProgressChange(curProgress, UnZipStep.Begin, "");
             }
+            if (EnvUtils.IsDEVELOPMENT_BUILD() || EnvUtils.IsUnity_Editor())
+            {
+                Debug.Log($"### Begin UnzipPatch:{patch.name}");
+            }
             Stream stream2 = File.OpenRead(zipFile);
+            stream2.Position = 0;
             using (ZipInputStream zipStream = new ZipInputStream(stream2))
             {
                 if (!string.IsNullOrEmpty(password))
@@ -97,7 +115,6 @@ public static partial class MyZipTool
                                                 OnUnzipSpdChange((long)(unzipSizePerSec * 1f / (ticks * 1f / 10000000)));
                                                 unzipSizePerSec = 0;
                                             }
-                                            yield return new WaitForEndOfFrame();
                                             lastSecondTicks = DateTime.Now.Ticks;
                                         }
                                         yield return new WaitForEndOfFrame();
