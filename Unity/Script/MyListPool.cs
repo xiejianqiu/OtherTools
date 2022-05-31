@@ -71,3 +71,21 @@ internal class MyListPool<T>
         }
     }
 }
+internal class MyStrBuilder
+{
+    private static readonly ObjectPool<StringBuilder> s_ListPool = new ObjectPool<StringBuilder>(g => g.Clear(), r => r.Clear());
+
+    public static StringBuilder Get()
+    {
+        return s_ListPool.Get();
+    }
+
+    public static void Recycle(StringBuilder toRelease)
+    {
+        if (null != toRelease)
+        {
+            s_ListPool.Recycle(toRelease);
+            toRelease = null;
+        }
+    }
+}
