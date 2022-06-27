@@ -43,7 +43,7 @@ public class GarbageCodeTool : EditorWindow
     private static string codeFilePath =                                 //已有C#代码路径
         UnityEngine.Application.dataPath + "/hotfix";
     //生成C#垃圾代码
-    [MenuItem("Tools/Code/生成C#垃圾代码")]
+    [MenuItem("Tools/GBCode/生成C#垃圾代码")]
     static void GenerateGarbageCode()
     {
         isGenerateXcode = false;
@@ -56,10 +56,9 @@ public class GarbageCodeTool : EditorWindow
         AssetDatabase.Refresh();
         AssetDatabase.SaveAssets();
 
-#if !UNITY_IPHONE
-        //只有苹果才生成垃圾代码
-        return;
-#endif
+        if (!IsCanAddGarbageCode()) {
+            return;
+        }
 
         //重新创建目录
         Directory.CreateDirectory(mstCreateCodeFilePath);
@@ -184,7 +183,7 @@ public class GarbageCodeTool : EditorWindow
     }
 
     //生成Xcode垃圾代码
-    [MenuItem("Tools/Code/生成Xcode垃圾代码")]
+    [MenuItem("Tools/GBCode/生成Xcode垃圾代码")]
     static void GenerateXCodeGarbageCodes()
     {
         isGenerateXcode = true;
@@ -197,10 +196,10 @@ public class GarbageCodeTool : EditorWindow
         AssetDatabase.Refresh();
         AssetDatabase.SaveAssets();
 
-#if !UNITY_IPHONE
-        //只有苹果才生成垃圾代码
-        return;
-#endif
+        if (!IsCanAddGarbageCode())
+        {
+            return;
+        }
 
         //重新创建目录
         Directory.CreateDirectory(mstCreateXCodeFilePath);
@@ -289,14 +288,14 @@ public class GarbageCodeTool : EditorWindow
         EditorUtility.DisplayDialog("xcode垃圾代码", "生成完毕！", "确定");
     }
 
-    [MenuItem("Tools/Code/C#加入混淆代码")]
+    [MenuItem("Tools/GBCode/C#加入混淆代码")]
 
     public static void addGarbageCodeForExistCSFile()
     {
-#if !UNITY_IPHONE
-        //只有苹果才生成垃圾代码
-        return;
-#endif
+        if (!IsCanAddGarbageCode())
+        {
+            return;
+        }
 
         if (Directory.Exists(codeFilePath))
         {
@@ -383,10 +382,10 @@ public class GarbageCodeTool : EditorWindow
     //获取函数体（根据已有模版随机生成）
     public static string GetFuncContent(string methonName, string param1, string param2, string param3)
     {
-#if !UNITY_IPHONE
-        //只有苹果才生成垃圾代码
-        return "";
-#endif 
+        if (!IsCanAddGarbageCode())
+        {
+            return string.Empty;
+        }
 
         //如果没有初始化则初始化函数模版
         if (null == arrFuncTplHandle || arrFuncTplHandle.Length < funcTplCount)
@@ -458,5 +457,10 @@ public class GarbageCodeTool : EditorWindow
         stringBuilder.AppendLine("    }");
         return stringBuilder.ToString();
     }
-
+    static bool IsCanAddGarbageCode() {
+        if (EnvUtils.IsUNITY_IOS() || EnvUtils.IsUNITY_IPHONE() || EnvUtils.IsUnity_Editor()) {
+            return true;
+        }
+        return false;
+    }
 }
