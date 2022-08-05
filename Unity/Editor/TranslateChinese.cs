@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -12,13 +12,23 @@ class TranslateChinese
     static public void GrabLuaChinese()
     {
         Regex NumReg = new Regex("[\u4e00-\u9fa5]+");   //获取中文
-        string dir = EditorUtility.OpenFolderPanel("提示", "", "");
-        Regex rx = new Regex("\"[^\"]*\"");
+        //string dir = EditorUtility.OpenFolderPanel("提示", "", "");
+        string assetsPath = Application.dataPath;
+        string[] scriptsPath = new string[] {
+            assetsPath+"/Script_Main",
+            assetsPath+"/../hotfix/hotfix/iLScript",
+            assetsPath+"/../../Scripts",
+        };
         HashSet<string> fileSet = new HashSet<string>();
-        var files = Directory.GetFiles(dir, "*.cs", SearchOption.AllDirectories);
-        fileSet.UnionWith(files);
-        files = Directory.GetFiles(dir, "*.lua", SearchOption.AllDirectories);
-        fileSet.UnionWith(files);
+        foreach (var dir in scriptsPath) {
+            if (!Directory.Exists(dir)) continue;
+            var files = Directory.GetFiles(dir, "*.cs", SearchOption.AllDirectories);
+            fileSet.UnionWith(files);
+            files = Directory.GetFiles(dir, "*.lua", SearchOption.AllDirectories);
+            fileSet.UnionWith(files);
+        }
+        
+        Regex rx = new Regex("\"[^\"]*\"");
         string savepath = "chinese.txt";
         if (File.Exists(savepath))
         {
@@ -33,10 +43,31 @@ class TranslateChinese
                 EditorUtility.DisplayProgressBar("提示", "文本提取中...", iCount * 1f / fileSet.Count);
                 using (var f = File.OpenRead(file))
                 {
+                    bool isLuaFile = file.EndsWith(".lua");
                     StreamReader rd = new StreamReader(f);
                     string txt = string.Empty;
                     while ((txt = rd.ReadLine()) != null)
                     {
+                        if (isLuaFile) {
+                            if (txt.StartsWith("--")) {
+                                continue;
+                            }
+                            int index = txt.IndexOf("--");
+                            if(index > 0) {
+                                txt = txt.Substring(0, index);
+                            }
+                        } else {
+                            if (txt.StartsWith("//")) {
+                                continue;
+                            }
+                            if (txt.TrimStart().StartsWith("[Header(")) {
+                                continue;
+                            }
+                            int index = txt.IndexOf("//");
+                            if (index > 0) {
+                                txt = txt.Substring(0, index);
+                            }
+                        }
                         if (NumReg.IsMatch(txt))
                         {
                             var results = rx.Matches(txt);
