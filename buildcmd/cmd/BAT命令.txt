@@ -11,3 +11,11 @@ REN dep.all newdep
 mklink /J %PROJ_PATH%\Assets\hotfix %PROJ_PATH%\hotfix\hotfix\iLScript
 延迟变量
 setlocal enabledelayedexpansion
+
+setlocal enabledelayedexpansion 
+set a=4 
+set a=5&echo !a! %a%
+输出结果:5 4
+
+for循环
+for /l %%i in (1,1,5) do ( set a=%%i echo !a! ) 
