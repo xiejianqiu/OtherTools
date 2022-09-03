@@ -1,15 +1,16 @@
-拷贝命令
+1.拷贝命令
 ECHO F|XCOPY /Y NoCommon\TChinese\build.gradle %ANDROID_PROJECT_PATH%\
 ECHO F|XCOPY /Y *.apk %RELEASE_DIR%\f
-删除命令
+2.删除命令
 CALL DEL /S /Q *.pdb
-创建目录
+RD /S /Q %OUT_PUT_DIR%
+2.创建目录
 mkdir %DIR_SAVE_PATCHFILE%\Res
-文件命令
+3.文件命令
 REN dep.all newdep
-目录软连接
+4.目录软连接
 mklink /J %PROJ_PATH%\Assets\hotfix %PROJ_PATH%\hotfix\hotfix\iLScript
-延迟变量
+5.延迟变量
 setlocal enabledelayedexpansion
 
 setlocal enabledelayedexpansion 
@@ -17,5 +18,21 @@ set a=4
 set a=5&echo !a! %a%
 输出结果:5 4
 
-for循环
+6.for循环
 for /l %%i in (1,1,5) do ( set a=%%i echo !a! ) 
+
+7.判断路径是否存在
+if exist %OUT_PUT_DIR% ( RD /S /Q %OUT_PUT_DIR% )
+
+8.if和else语句
+if %BuildType% == MinAAB (
+
+) else if %BuildType% == MinAABDebug (
+   
+) else (
+    
+)
+
+if %BuildType% == GooglePlay ( 
+
+)
