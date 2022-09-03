@@ -1,0 +1,13 @@
+拷贝命令
+ECHO F|XCOPY /Y NoCommon\TChinese\build.gradle %ANDROID_PROJECT_PATH%\
+ECHO F|XCOPY /Y *.apk %RELEASE_DIR%\f
+删除命令
+CALL DEL /S /Q *.pdb
+创建目录
+mkdir %DIR_SAVE_PATCHFILE%\Res
+文件命令
+REN dep.all newdep
+目录软连接
+mklink /J %PROJ_PATH%\Assets\hotfix %PROJ_PATH%\hotfix\hotfix\iLScript
+延迟变量
+setlocal enabledelayedexpansion
