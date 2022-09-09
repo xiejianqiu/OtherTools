@@ -1,0 +1,10 @@
+apply plugin: 'com.android.asset-pack'
+
+assetPack {
+    // packName 的名称可更改，但是要和配置对应上
+    packName = "install_time_asset_pack"
+    dynamicDelivery {
+        //只能指定一种类型，对应PAD分发模式
+        deliveryType = "install-time"
+    }
+}
