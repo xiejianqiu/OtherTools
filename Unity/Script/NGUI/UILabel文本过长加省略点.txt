@@ -1,0 +1,15 @@
+private UILabel _labPlayerName;
+private void SetNickName()
+{        
+        string  nickName = "这个名字有点长有点长有点长";
+        string strOut = string.Empty;
+        bool bWarp = _labPlayerName.Wrap(nickName, out strOut, _labPlayerName.height);
+        while (!bWarp)
+        {
+            strOut = nickName.Substring(0, nickName.Length - 1);
+            nickName = strOut;
+            strOut += "...";
+            bWarp = _labPlayerName.Wrap(strOut, out strOut, _labPlayerName.height);
+        }
+        _labPlayerName.text = strOut;
+}
