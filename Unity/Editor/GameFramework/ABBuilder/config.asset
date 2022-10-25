@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1261951735, guid: a7dba8eb240897e47b2e91f5ba0f80f3, type: 3}
+  m_Name: config
+  m_EditorClassIdentifier: 
+  depInfoFileFormat: 1
+  filters:
+  - Valid: 1
+    BundleStrategy: 1
+    Path: Assets/BundleData/Tables
+    Filter: '*.txt'
+  - Valid: 1
+    BundleStrategy: 0
+    Path: Assets/BundleData/Music
+    Filter: '*.mp3'
+  - Valid: 1
+    BundleStrategy: 0
+    Path: Assets/BundleData/Music
+    Filter: '*.wav'
+  - Valid: 1
+    BundleStrategy: 0
+    Path: Assets/BundleData/UI
+    Filter: '*.prefab'
+  - Valid: 1
+    BundleStrategy: 0
+    Path: Assets/BundleData/Prefab
+    Filter: '*.prefab'
+  - Valid: 1
+    BundleStrategy: 0
+    Path: Assets/BundleData/Animation
+    Filter: '*.anim'
+  - Valid: 1
+    BundleStrategy: 0
+    Path: Assets/BundleData/Texture
+    Filter: '*.png'
+  - Valid: 1
+    BundleStrategy: 0
+    Path: Assets/BundleData/TPProject
+    Filter: '*.prefab'
+  - Valid: 1
+    BundleStrategy: 0
+    Path: Assets/BundleData/Texture
+    Filter: '*.exr'
