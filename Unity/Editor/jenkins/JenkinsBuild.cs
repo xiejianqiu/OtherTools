@@ -62,7 +62,7 @@ namespace Jenkins
                     PlayerGenerator.GenerateUpdateInfo();
                 }
 
-                string resVer = mPargmaTypeCheck.GetValue(PargmaType.resVer);
+                string resVer = mPargmaTypeCheck.GetValue(PargmaType.ResVer);
                 if (!string.IsNullOrEmpty(resVer))
                 {
                     string verInfo = Application.streamingAssetsPath + PathConfig.Instance.VersionFileName;

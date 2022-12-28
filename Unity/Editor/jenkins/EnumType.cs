@@ -8,7 +8,7 @@ namespace Jenkins
     public enum PargmaType {
         Platform,//Android,iOS,WebGL
         BuildRes,//构建打包所有资源
-        resVer,//资源版本号
+        ResVer,//资源版本号
         IsDebug,//是否为debug包
         IsAAB,//是否为AAB包
         IsBuildPkg, //构建安装包或者导出xcode或者webgl工程
