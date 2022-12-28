@@ -26,6 +26,6 @@ SET OutputPath=%CUR_PATH%..\webgame
 SET RemoveManifest=false
 rd /S /Q %outputPath%
 mkdir %outputPath%
-SET CUSTOM_PARGAM=Platform %Platform% BuildRes %BuildRes% ResVer %ResVer% IsDebug %IsDebug% IsBuildPkg %IsBuildPkg% VersionName %VersionName% VersionCode %VersionCode%  PkgType %PkgType% outputPath %outputPath% RemoveManifest %RemoveManifest%
+SET CUSTOM_PARGAM=Platform %Platform% BuildRes %BuildRes% ResVer %ResVer% IsDebug %IsDebug% IsBuildPkg %IsBuildPkg% VersionName %VersionName% VersionCode %VersionCode%  PkgType %PkgType% OutputPath %OutputPath% RemoveManifest %RemoveManifest%
 call %UnityExe% -projectPath %PROJECT_PATH% -batchMode  -disable-assembly-updater -executeMethod %Method% -quit -batchmode -logFile %Log_OUPUT_File% %CUSTOM_PARGAM%
 ECHO "构建完毕!!!!"

@@ -51,13 +51,13 @@ namespace Jenkins
                     }
                     if (EditorUserBuildSettings.selectedBuildTargetGroup != buildTarGroup)
                     {
-                        EditorUserBuildSettings.SwitchActiveBuildTarget(buildTarGroup, buildTarget);
+                        var result = EditorUserBuildSettings.SwitchActiveBuildTarget(buildTarGroup, buildTarget);
+                        if (!result)
+                        {
+                            Debug.LogError($"SwitchActiveBuildTarget Failed: buildTarGroup: {buildTarGroup}, buildTarget:{buildTarget}");
+                        }
                     }
-                    else
-                    {
-                        Debug.LogError($"SwitchActiveBuildTarget Failed: buildTarGroup: {buildTarGroup}, buildTarget:{buildTarget}");
-                        return;
-                    }
+                    
                     ABBuildPanel.BuildAssetBundles(buildTarget, true, false, RemoveManifest);
                     PlayerGenerator.GenerateUpdateInfo();
                 }
