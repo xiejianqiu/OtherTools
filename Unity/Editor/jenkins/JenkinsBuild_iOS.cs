@@ -15,9 +15,10 @@ namespace Jenkins
         {
             try
             {
-                PkgType pkgType = (PkgType)int.Parse(mPargmaTypeCheck.GetValue(PargmaType.pkgType));
+                PkgType pkgType = (PkgType)int.Parse(mPargmaTypeCheck.GetValue(PargmaType.PkgType));
                 bool IsDebug = mPargmaTypeCheck.IsTrue(PargmaType.IsDebug);
                 bool IsAAB = mPargmaTypeCheck.IsTrue(PargmaType.IsAAB);
+                string outputPath = mPargmaTypeCheck.GetValue(PargmaType.OutputPath);
                 AndroidBuildTool.Config.IS_GOOGLE_PLAY = IsAAB;
                 PlayerGenerator.isOniOSDebugBuild = IsDebug;
                 if (ChanConnector.IsJJYChannel())
@@ -53,7 +54,7 @@ namespace Jenkins
                 BuildPipeline.BuildPlayer(allScene, PlayerGenerator.GetLocation(), BuildTarget.iOS, opts);
                 if (pkgType == PkgType.NoRes)
                 {
-                    string asset_path = PlayerGenerator.GetLocation() + "/Data/Raw/AssetBundles";
+                    string asset_path = outputPath + "/Data/Raw/AssetBundles";
                     if (Directory.Exists(asset_path))
                     {
                         Directory.Delete(asset_path, true);
@@ -61,8 +62,7 @@ namespace Jenkins
                 }
                 else if (pkgType == PkgType.HalfRes)
                 {
-                    string asset_path = PlayerGenerator.GetLocation() + "/Data/Raw/AssetBundles";
-
+                    string asset_path = outputPath + "/Data/Raw/AssetBundles";
                     PlayerGenerator.ExtractPatchRes(asset_path);
                 }
             }

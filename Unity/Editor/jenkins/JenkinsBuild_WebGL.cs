@@ -10,11 +10,11 @@ namespace WeChatWASM
             window.developBuild = IsDebug;
             window.profilingFuncs = IsDebug;
             window.autoProfile = IsDebug;
+            window.OnEnable();
             if (!string.IsNullOrEmpty(output))
             {
                 WXEditorWindow.dst = output;
             }
-            window.OnEnable();
             window.DoExport(true);
         }
 
@@ -28,7 +28,7 @@ namespace Jenkins
         private static void BuildWebGl()
         {
             bool IsDebug = mPargmaTypeCheck.IsTrue(PargmaType.IsDebug);
-            string outputPath = mPargmaTypeCheck.GetValue(PargmaType.outputPath);
+            string outputPath = mPargmaTypeCheck.GetValue(PargmaType.OutputPath);
             WXEditorWindow.Export(IsDebug, outputPath);
         }
     }

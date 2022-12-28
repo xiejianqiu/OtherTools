@@ -12,10 +12,11 @@ namespace Jenkins
         IsDebug,//是否为debug包
         IsAAB,//是否为AAB包
         IsBuildPkg, //构建安装包或者导出xcode或者webgl工程
-        versionName,//版本号
-        versionCode,//版本Code
-        pkgType,//0：整包（带有全部资源），1：中包（带部分资源），2：小包（不带资源）
-        outputPath,//导出路径
+        VersionName,//版本号
+        VersionCode,//版本Code
+        PkgType,//0：整包（带有全部资源），1：中包（带部分资源），2：小包（不带资源）
+        OutputPath,//导出路径
+        RemoveManifest,//是否删除资源清单
     }
     public enum PkgType { 
         AllRes,

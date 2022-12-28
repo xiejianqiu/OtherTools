@@ -17,8 +17,9 @@ namespace Jenkins
                 bool buildRes = mPargmaTypeCheck.IsTrue(PargmaType.BuildRes);
                 string Platform = mPargmaTypeCheck.GetValue(PargmaType.Platform);
 
-                string versionName = mPargmaTypeCheck.GetValue(PargmaType.versionName);
-                string versionCode = mPargmaTypeCheck.GetValue(PargmaType.versionCode);
+                string versionName = mPargmaTypeCheck.GetValue(PargmaType.VersionName);
+                string versionCode = mPargmaTypeCheck.GetValue(PargmaType.VersionCode);
+                bool RemoveManifest = mPargmaTypeCheck.IsTrue(PargmaType.RemoveManifest);
                 PlayerSettings.bundleVersion = versionName;
                 if (EnvUtils.IsUNITY_ANDROID())
                 {
@@ -57,7 +58,7 @@ namespace Jenkins
                         Debug.LogError($"SwitchActiveBuildTarget Failed: buildTarGroup: {buildTarGroup}, buildTarget:{buildTarget}");
                         return;
                     }
-                    ABBuildPanel.BuildAssetBundles(buildTarget, true, false, false);
+                    ABBuildPanel.BuildAssetBundles(buildTarget, true, false, RemoveManifest);
                     PlayerGenerator.GenerateUpdateInfo();
                 }
 
@@ -71,7 +72,7 @@ namespace Jenkins
                     }
                     using (var writer = File.CreateText(verInfo))
                     {
-                        PkgType pkgType = (PkgType)int.Parse(mPargmaTypeCheck.GetValue(PargmaType.pkgType));
+                        PkgType pkgType = (PkgType)int.Parse(mPargmaTypeCheck.GetValue(PargmaType.PkgType));
                         writer.WriteLine(resVer);
                         writer.WriteLine("1");
                         if (pkgType != PkgType.AllRes)
@@ -99,7 +100,7 @@ namespace Jenkins
             }
             catch (Exception e)
             {
-                Debug.LogError($"############# {e}");
+                Debug.LogError($"################ {e}");
             }
         }
     }

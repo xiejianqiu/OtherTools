@@ -18,7 +18,7 @@ namespace Jenkins
             if (buildApk)
             {
                 AndroidBuildTool.Config.IS_GOOGLE_PLAY = mPargmaTypeCheck.IsTrue(PargmaType.IsAAB);
-                PkgType pkgType = (PkgType)int.Parse(mPargmaTypeCheck.GetValue(PargmaType.pkgType));
+                PkgType pkgType = (PkgType)int.Parse(mPargmaTypeCheck.GetValue(PargmaType.PkgType));
                 bool IsDebug = mPargmaTypeCheck.IsTrue(PargmaType.IsDebug);
                 if (Directory.Exists(AndroidBuildTool.Config.PROJECT_GOOGLE_EXPORT))
                 {
