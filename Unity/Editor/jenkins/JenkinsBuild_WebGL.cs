@@ -10,7 +10,7 @@ namespace WeChatWASM
             window.developBuild = IsDebug;
             window.profilingFuncs = IsDebug;
             window.autoProfile = IsDebug;
-            if (string.IsNullOrEmpty(output))
+            if (!string.IsNullOrEmpty(output))
             {
                 WXEditorWindow.dst = output;
             }
