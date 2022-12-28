@@ -3,14 +3,24 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-namespace NSBuildGame
+namespace Jenkins
 {
     public enum PargmaType {
-        Platform,//Android,iOS
-        BRes,//构建打包所有资源
+        Platform,//Android,iOS,WebGL
+        BuildRes,//构建打包所有资源
+        resVer,//资源版本号
         IsDebug,//是否为debug包
         IsAAB,//是否为AAB包
-        IsMin,//是否为小包
+        IsBuildPkg, //构建安装包或者导出xcode或者webgl工程
+        versionName,//版本号
+        versionCode,//版本Code
+        pkgType,//0：整包（带有全部资源），1：中包（带部分资源），2：小包（不带资源）
+        outputPath,//导出路径
+    }
+    public enum PkgType { 
+        AllRes,
+        HalfRes,
+        NoRes
     }
     public class PargmaTypeCheck {
         private Dictionary<PargmaType, string> argsDict;
@@ -24,7 +34,7 @@ namespace NSBuildGame
             {
                 try
                 {
-                    Debug.Log($"============= {index}:{args[index]} ========");
+                    Debug.Log($"################ {index}:{args[index]}");
                     if (Enum.TryParse<PargmaType>(args[index], out var val))
                     {
                         argsDict[val] = "";
@@ -50,7 +60,7 @@ namespace NSBuildGame
             while (iter.MoveNext()) {
                 logBuilder.AppendLine($"{iter.Current.Key} {iter.Current.Value}");
             }
-            Debug.Log($"透传参数信息:{argsDict.Count}\n{logBuilder.ToString()}");
+            Debug.Log($"################ 透传参数信息:{argsDict.Count}\n{logBuilder.ToString()}");
         }
         /// <summary>
         /// 该函数只对布尔型参数有效

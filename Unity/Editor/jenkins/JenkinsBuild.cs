@@ -1,25 +1,99 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NSBuildGame;
+using System.IO;
+using UnityEditor;
+using UnityEngine;
 
-public class JenkinsBuild
+namespace Jenkins
 {
-    private static PargmaTypeCheck mPargmaTypeCheck = new PargmaTypeCheck();
-    public static void Build() {
-        mPargmaTypeCheck.Init(Environment.GetCommandLineArgs());
-        bool buildRes = mPargmaTypeCheck.IsTrue(PargmaType.BRes);
-        bool IsDebug = mPargmaTypeCheck.IsTrue(PargmaType.IsDebug);
-        bool IsAAB = mPargmaTypeCheck.IsTrue(PargmaType.IsAAB);
-        bool IsMin = mPargmaTypeCheck.IsTrue(PargmaType.IsMin);
-        if (IsAAB) {
-            PlayerGenerator.Is_Build_Min_AAB = IsMin;
+    public partial class JenkinsBuild
+    {
+        static string[] Platforms = { "Android", "iOS", "WebGL" };
+        private static PargmaTypeCheck mPargmaTypeCheck = new PargmaTypeCheck();
+        public static void BuildMain()
+        {
+            mPargmaTypeCheck.Init(Environment.GetCommandLineArgs());
+            bool buildRes = mPargmaTypeCheck.IsTrue(PargmaType.BuildRes);
+            string Platform = mPargmaTypeCheck.GetValue(PargmaType.Platform);
+
+            string versionName = mPargmaTypeCheck.GetValue(PargmaType.versionName);
+            string versionCode = mPargmaTypeCheck.GetValue(PargmaType.versionCode);
+            PlayerSettings.bundleVersion = versionName;
+            if (EnvUtils.IsUNITY_ANDROID())
+            {
+                PlayerSettings.Android.bundleVersionCode = int.Parse(versionCode);
+            }
+            else if (EnvUtils.IsUNITY_IOS())
+            {
+                PlayerSettings.iOS.buildNumber = versionCode;
+            }
+
+            if (buildRes)
+            {
+                BuildTargetGroup buildTarGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
+                BuildTarget buildTarget = EditorUserBuildSettings.activeBuildTarget;
+                if (Platform == Platforms[0])
+                {
+                    buildTarGroup = BuildTargetGroup.Android;
+                    buildTarget = BuildTarget.Android;
+                }
+                else if (Platform == Platforms[1])
+                {
+                    buildTarGroup = BuildTargetGroup.iOS;
+                    buildTarget = BuildTarget.iOS;
+                }
+                else if (Platform == Platforms[2])
+                {
+                    buildTarGroup = BuildTargetGroup.WebGL;
+                    buildTarget = BuildTarget.WebGL;
+                }
+                if (EditorUserBuildSettings.selectedBuildTargetGroup != buildTarGroup)
+                {
+                    EditorUserBuildSettings.SwitchActiveBuildTarget(buildTarGroup, buildTarget);
+                }
+                else
+                {
+                    Debug.LogError($"SwitchActiveBuildTarget Failed: buildTarGroup: {buildTarGroup}, buildTarget:{buildTarget}");
+                    return;
+                }
+                ABBuildPanel.BuildAssetBundles(buildTarget, true, false, false);
+                PlayerGenerator.GenerateUpdateInfo();
+            }
+
+            string resVer = mPargmaTypeCheck.GetValue(PargmaType.resVer);
+            if (!string.IsNullOrEmpty(resVer))
+            {
+                string verInfo = Application.streamingAssetsPath + PathConfig.Instance.VersionFileName;
+                if (File.Exists(verInfo))
+                {
+                    File.Delete(verInfo);
+                }
+                using (var writer = File.CreateText(verInfo))
+                {
+                    PkgType pkgType = (PkgType)int.Parse(mPargmaTypeCheck.GetValue(PargmaType.pkgType));
+                    writer.WriteLine(resVer);
+                    writer.WriteLine("1");
+                    if (pkgType != PkgType.AllRes)
+                    {
+                        writer.WriteLine("1");
+                    }
+                }
+            }
+            bool IsBuildPkg = mPargmaTypeCheck.IsTrue(PargmaType.IsBuildPkg);
+            if (IsBuildPkg)
+            {
+                if (Platform == Platforms[0])
+                {
+                    BuildForAndroid();
+                }
+                else if (Platform == Platforms[1])
+                {
+                    BuildForIOS();
+                }
+                else if (Platform == Platforms[2])
+                {
+                    BuildWebGl();
+                }
+            }
         }
-        else {
-            PlayerGenerator.Is_Build_Min_APK = IsMin;
-        }
-        PlayerGenerator.ExportGoogleProject(IsDebug, buildRes, IsAAB, false);
     }
 }
