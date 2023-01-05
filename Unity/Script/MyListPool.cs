@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using UnityEngine.Events;
 using pools;
 namespace pools {
-    internal class ObjectPool<T> where T : new()
+    public class ObjectPool<T> where T : new()
     {
         private readonly Stack<T> m_Stack = new Stack<T>();
         private readonly UnityAction<T> m_ActionOnGet;
@@ -51,7 +51,7 @@ namespace pools {
         }
     }
 }
-internal class MyListPool<T>
+public class MyListPool<T>
 {
     private static readonly ObjectPool<List<T>> s_ListPool = new ObjectPool<List<T>>(null, l => {
         l.Clear();
@@ -71,7 +71,7 @@ internal class MyListPool<T>
         }
     }
 }
-internal class MyStrBuilder
+public class MyStrBuilder
 {
     private static readonly ObjectPool<StringBuilder> s_ListPool = new ObjectPool<StringBuilder>(g => g.Clear(), r => r.Clear());
 
@@ -86,6 +86,23 @@ internal class MyStrBuilder
         {
             s_ListPool.Recycle(toRelease);
             toRelease = null;
+        }
+    }
+}
+public class MyObjPool<T> where T:IDisposable,new()
+{
+    private static readonly ObjectPool<T> s_ListPool = new ObjectPool<T>((t)=> { t.Dispose(); }, (t)=> { });
+
+    public static T Get()
+    {
+        return s_ListPool.Get();
+    }
+
+    public static void Recycle(T toRelease)
+    {
+        if (null != toRelease)
+        {
+            s_ListPool.Recycle(toRelease);
         }
     }
 }
