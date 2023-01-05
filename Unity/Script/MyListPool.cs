@@ -91,7 +91,7 @@ public class MyStrBuilder
 }
 public class MyObjPool<T> where T:IDisposable,new()
 {
-    private static readonly ObjectPool<T> s_ListPool = new ObjectPool<T>((t)=> { t.Dispose(); }, (t)=> { });
+    private static readonly ObjectPool<T> s_ListPool = new ObjectPool<T>((t)=> { }, (t)=> { t.Dispose()});
 
     public static T Get()
     {
