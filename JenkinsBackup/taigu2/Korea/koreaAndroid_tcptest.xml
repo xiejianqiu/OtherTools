@@ -1,0 +1,578 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <displayName>Trunk_韩国主干android版本</displayName>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <io.jenkins.plugins.DingTalkJobProperty plugin="dingding-notifications@2.4.4">
+      <notifierConfigs>
+        <io.jenkins.plugins.DingTalkNotifierConfig>
+          <checked>true</checked>
+          <robotId>383fef76-d869-4802-afe7-70914793c412</robotId>
+          <robotName>jenkins</robotName>
+          <atAll>true</atAll>
+          <atMobile></atMobile>
+          <content>构建${PRO_NAME}-${BuildType}-更新${NeedSvnUpdate}-${GenApk}
+请查看${BUILD_URL}/console
+下载地址http://10.168.15.211:9080/www/korea_main/</content>
+          <noticeOccasions>
+            <string>SUCCESS</string>
+            <string>START</string>
+            <string>NOT_BUILT</string>
+            <string>ABORTED</string>
+            <string>FAILURE</string>
+            <string>UNSTABLE</string>
+          </noticeOccasions>
+        </io.jenkins.plugins.DingTalkNotifierConfig>
+      </notifierConfigs>
+    </io.jenkins.plugins.DingTalkJobProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.28"/>
+    <hudson.plugins.svn__partial__release__mgr.ui.JobPropertyImpl plugin="svn-partial-release-mgr@1.0.1"/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PRO_NAME</name>
+          <description>工程名称</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>korea_main</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>BuildType</name>
+          <description>ResDebug 构建资源，构建debug版本
+NoResDebug 不构建资源，构建debug版本
+ResRelease   构建资源，构建release版本
+NoResRelease  不构建资源，构建release版本
+GooglePlay 不构建资源，构建AAB版本
+MinAAB 不带ab的小包AAB
+MinAABDebug MinAABDebug的debug包
+MinAPK 不带ab的小包apk
+MinApkDebug 小包apk debug包
+</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>None</string>
+              <string>NoResDebug</string>
+              <string>ResDebug</string>
+              <string>NoResRelease</string>
+              <string>ResRelease</string>
+              <string>GooglePlay</string>
+              <string>MinAAB</string>
+              <string>MinAABDebug</string>
+              <string>MinAPK</string>
+              <string>MinApkDebug</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>SvnUpdateType</name>
+          <description>UpdateAndRevert 更新svn并revert
+UpdateNoRevert 更新svn不revert</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>None</string>
+              <string>UpdateNoRevert</string>
+              <string>UpdateAndRevert</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>GenApk</name>
+          <description>GooglePlay 生成AAB，其他生成Apk,</description>
+          <defaultValue>true</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>Subversion</name>
+          <description>bundleVersion最后一位，每次出包需要增加一位</description>
+          <defaultValue>26</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>BuildPatch</name>
+          <description>构建补丁包</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>BaseABDetail</name>
+          <description>对比的abdetail所在文件夹,线上abdetail版本</description>
+          <defaultValue>280_1.0.0.10</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>BundleVerCode</name>
+          <description>设置android版本的bundleVersionCode</description>
+          <defaultValue>45</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>master</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>true</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <customWorkspace>C:\WROK_SPACE\</customWorkspace>
+  <builders>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <condition class="org.jenkins_ci.plugins.run_condition.logic.Not" plugin="run-condition@1.5">
+        <condition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition">
+          <arg1>${SvnUpdateType}</arg1>
+          <arg2>None</arg2>
+          <ignoreCase>false</ignoreCase>
+        </condition>
+      </condition>
+      <buildStep class="hudson.tasks.BatchFile">
+        <command>SET PROJ_PATH=%WORKSPACE%\%PRO_NAME%\shengwang&#xd;
+SET SVN_USERNAME=taigu1build&#xd;
+SET SVN_USERPWD=123456&#xd;
+&#xd;
+if %SvnUpdateType% == UpdateAndRevert (&#xd;
+  cd %PROJ_PATH%&#xd;
+  svn cleanup --username=%SVN_USERNAME% --password=%SVN_USERPWD%&#xd;
+  svn revert --username=%SVN_USERNAME% --password=%SVN_USERPWD% -R .&#xd;
+  svn update --username=%SVN_USERNAME% --password=%SVN_USERPWD%&#xd;
+  echo &quot;Update Done.    `date`&quot;&#xd;
+) else if %SvnUpdateType% == UpdateNoRevert (&#xd;
+  cd %PROJ_PATH%&#xd;
+  svn cleanup --username=%SVN_USERNAME% --password=%SVN_USERPWD%&#xd;
+  svn update --username=%SVN_USERNAME% --password=%SVN_USERPWD%&#xd;
+  echo &quot;Update Done.    `date`&quot;&#xd;
+)&#xd;
+</command>
+        <configuredLocalRules/>
+      </buildStep>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <condition class="org.jenkins_ci.plugins.run_condition.logic.Not" plugin="run-condition@1.5">
+        <condition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition">
+          <arg1>${BuildType}</arg1>
+          <arg2>None</arg2>
+          <ignoreCase>false</ignoreCase>
+        </condition>
+      </condition>
+      <buildStep class="hudson.tasks.BatchFile">
+        <command>SET PROJ_PATH=%WORKSPACE%\%PRO_NAME%\shengwang&#xd;
+&#xd;
+setlocal enabledelayedexpansion&#xd;
+if %BuildType% == GooglePlay (&#xd;
+    SET ANDROID_PROJECT_PATH=%PROJ_PATH%\AndroidSDK\BuildModelProject\tgsw_google&#xd;
+    SET OUT_PUT_DIR=%ANDROID_PROJECT_PATH%\build\outputs\bundle\koreaRelease&#xd;
+) else if %BuildType% == MinAAB (&#xd;
+    SET ANDROID_PROJECT_PATH=%PROJ_PATH%\AndroidSDK\BuildModelProject\tgsw_google&#xd;
+    SET OUT_PUT_DIR=%ANDROID_PROJECT_PATH%\build\outputs\bundle\koreaRelease&#xd;
+) else if %BuildType% == MinAABDebug (&#xd;
+    SET ANDROID_PROJECT_PATH=%PROJ_PATH%\AndroidSDK\BuildModelProject\tgsw_google&#xd;
+    SET OUT_PUT_DIR=%ANDROID_PROJECT_PATH%\build\outputs\bundle\koreaRelease&#xd;
+) else (&#xd;
+    SET ANDROID_PROJECT_PATH=%PROJ_PATH%\AndroidSDK\BuildModelProject\tgsw&#xd;
+    SET OUT_PUT_DIR=%ANDROID_PROJECT_PATH%\build\outputs\apk\korea\release&#xd;
+)&#xd;
+&#xd;
+ECHO  ANDROID_PROJECT_PATH:%ANDROID_PROJECT_PATH%&#xd;
+ECHO  OUT_PUT_DIR:%OUT_PUT_DIR%&#xd;
+CD %PROJ_PATH%&#xd;
+&#xd;
+if exist %PROJ_PATH%\BuildLog ( RD /S /Q %PROJ_PATH%\BuildLog )&#xd;
+&#xd;
+if exist %OUT_PUT_DIR% ( RD /S /Q %OUT_PUT_DIR% )&#xd;
+&#xd;
+if exist %PROJ_PATH%\Library\ScriptAssemblies ( RD /S /Q %PROJ_PATH%\Library\ScriptAssemblies )&#xd;
+&#xd;
+if exist %PROJ_PATH%\Assets\hotfix (  RD/S /Q %PROJ_PATH%\Assets\hotfix )&#xd;
+&#xd;
+&#xd;
+SET version=%Subversion%&#xd;
+SET FILE_NAME=Demo_%version%.apk&#xd;
+echo %version% &gt; %PROJ_PATH%\version&#xd;
+&#xd;
+ECHO %BundleVerCode% &gt; %PROJ_PATH%\bundleversioncode&#xd;
+echo %OUT_PUT_DIR%\%FILE_NAME% &gt; %PROJ_PATH%\buildLocation&#xd;
+&#xd;
+mkdir %OUT_PUT_DIR%&#xd;
+mklink /J %PROJ_PATH%\Assets\hotfix %PROJ_PATH%\hotfix\hotfix\iLScript</command>
+        <configuredLocalRules/>
+      </buildStep>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+      <runCondition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition" plugin="run-condition@1.5">
+        <arg1>${BuildType}</arg1>
+        <arg2>ResDebug</arg2>
+        <ignoreCase>false</ignoreCase>
+      </runCondition>
+      <conditionalbuilders>
+        <org.jenkinsci.plugins.unity3d.Unity3dBuilder plugin="unity3d-plugin@1.3">
+          <unity3dName>Unity20180418f</unity3dName>
+          <argLine>-projectPath ${WORKSPACE}/${PRO_NAME}/shengwang -executeMethod PlayerGenerator.ExportGoogleProjectDebug -quit -batchmode -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_android.log</argLine>
+          <unstableReturnCodes></unstableReturnCodes>
+        </org.jenkinsci.plugins.unity3d.Unity3dBuilder>
+      </conditionalbuilders>
+    </org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+      <runCondition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition" plugin="run-condition@1.5">
+        <arg1>${BuildType}</arg1>
+        <arg2>NoResDebug</arg2>
+        <ignoreCase>false</ignoreCase>
+      </runCondition>
+      <conditionalbuilders>
+        <org.jenkinsci.plugins.unity3d.Unity3dBuilder plugin="unity3d-plugin@1.3">
+          <unity3dName>Unity20180418f</unity3dName>
+          <argLine>-projectPath ${WORKSPACE}/${PRO_NAME}/shengwang -executeMethod PlayerGenerator.ExportGoogleProjectNoResDebug -quit -batchmode -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_android.log</argLine>
+          <unstableReturnCodes></unstableReturnCodes>
+        </org.jenkinsci.plugins.unity3d.Unity3dBuilder>
+      </conditionalbuilders>
+    </org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+      <runCondition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition" plugin="run-condition@1.5">
+        <arg1>${BuildType}</arg1>
+        <arg2>ResRelease</arg2>
+        <ignoreCase>false</ignoreCase>
+      </runCondition>
+      <conditionalbuilders>
+        <org.jenkinsci.plugins.unity3d.Unity3dBuilder plugin="unity3d-plugin@1.3">
+          <unity3dName>Unity20180418f</unity3dName>
+          <argLine>-projectPath ${WORKSPACE}/${PRO_NAME}/shengwang -executeMethod PlayerGenerator.ExportGoogleProjectRelease -quit -batchmode -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_android.log</argLine>
+          <unstableReturnCodes></unstableReturnCodes>
+        </org.jenkinsci.plugins.unity3d.Unity3dBuilder>
+      </conditionalbuilders>
+    </org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+      <runCondition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition" plugin="run-condition@1.5">
+        <arg1>${BuildType}</arg1>
+        <arg2>NoResRelease</arg2>
+        <ignoreCase>false</ignoreCase>
+      </runCondition>
+      <conditionalbuilders>
+        <org.jenkinsci.plugins.unity3d.Unity3dBuilder plugin="unity3d-plugin@1.3">
+          <unity3dName>Unity20180418f</unity3dName>
+          <argLine>-projectPath ${WORKSPACE}/${PRO_NAME}/shengwang -executeMethod PlayerGenerator.ExportGoogleProjectNoResRelease -quit -batchmode -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_android.log</argLine>
+          <unstableReturnCodes></unstableReturnCodes>
+        </org.jenkinsci.plugins.unity3d.Unity3dBuilder>
+      </conditionalbuilders>
+    </org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <condition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition" plugin="run-condition@1.5">
+        <arg1>${BuildType}</arg1>
+        <arg2>GooglePlay</arg2>
+        <ignoreCase>false</ignoreCase>
+      </condition>
+      <buildStep class="org.jenkinsci.plugins.unity3d.Unity3dBuilder" plugin="unity3d-plugin@1.3">
+        <unity3dName>Unity20180418f</unity3dName>
+        <argLine>-projectPath ${WORKSPACE}/${PRO_NAME}/shengwang -executeMethod PlayerGenerator.ExportGooglePlayProjectNoResRelease -quit -batchmode -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_android.log</argLine>
+        <unstableReturnCodes></unstableReturnCodes>
+      </buildStep>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <condition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition" plugin="run-condition@1.5">
+        <arg1>${BuildType}</arg1>
+        <arg2>MinAAB</arg2>
+        <ignoreCase>false</ignoreCase>
+      </condition>
+      <buildStep class="org.jenkinsci.plugins.unity3d.Unity3dBuilder" plugin="unity3d-plugin@1.3">
+        <unity3dName>Unity20180418f</unity3dName>
+        <argLine>-projectPath ${WORKSPACE}/${PRO_NAME}/shengwang -executeMethod PlayerGenerator.ExportMinAABGooglePlayNoResRelease -quit -batchmode -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_android.log</argLine>
+        <unstableReturnCodes></unstableReturnCodes>
+      </buildStep>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <condition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition" plugin="run-condition@1.5">
+        <arg1>${BuildType}</arg1>
+        <arg2>MinAABDebug</arg2>
+        <ignoreCase>false</ignoreCase>
+      </condition>
+      <buildStep class="org.jenkinsci.plugins.unity3d.Unity3dBuilder" plugin="unity3d-plugin@1.3">
+        <unity3dName>Unity20180418f</unity3dName>
+        <argLine>-projectPath ${WORKSPACE}/${PRO_NAME}/shengwang -executeMethod PlayerGenerator.ExportMinAABGooglePlayNoResDebug -quit -batchmode -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_android.log</argLine>
+        <unstableReturnCodes></unstableReturnCodes>
+      </buildStep>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <condition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition" plugin="run-condition@1.5">
+        <arg1>${BuildType}</arg1>
+        <arg2>MinAPK</arg2>
+        <ignoreCase>false</ignoreCase>
+      </condition>
+      <buildStep class="org.jenkinsci.plugins.unity3d.Unity3dBuilder" plugin="unity3d-plugin@1.3">
+        <unity3dName>Unity20180418f</unity3dName>
+        <argLine>-projectPath ${WORKSPACE}/${PRO_NAME}/shengwang -executeMethod PlayerGenerator.ExportMinApkGooglePlayNoResRelease -quit -batchmode -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_android.log</argLine>
+        <unstableReturnCodes></unstableReturnCodes>
+      </buildStep>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <condition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition" plugin="run-condition@1.5">
+        <arg1>${BuildType}</arg1>
+        <arg2>MinApkDebug</arg2>
+        <ignoreCase>false</ignoreCase>
+      </condition>
+      <buildStep class="org.jenkinsci.plugins.unity3d.Unity3dBuilder" plugin="unity3d-plugin@1.3">
+        <unity3dName>Unity20180418f</unity3dName>
+        <argLine>-projectPath ${WORKSPACE}/${PRO_NAME}/shengwang -executeMethod PlayerGenerator.ExportMinApkGooglePlayNoResDebug -quit -batchmode -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_android.log</argLine>
+        <unstableReturnCodes></unstableReturnCodes>
+      </buildStep>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+      <runCondition class="org.jenkins_ci.plugins.run_condition.logic.And" plugin="run-condition@1.5">
+        <conditions>
+          <org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+            <condition class="org.jenkins_ci.plugins.run_condition.core.BooleanCondition">
+              <token>${GenApk}</token>
+            </condition>
+          </org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+          <org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+            <condition class="org.jenkins_ci.plugins.run_condition.logic.Or">
+              <conditions>
+                <org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+                  <condition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition">
+                    <arg1>${BuildType}</arg1>
+                    <arg2>GooglePlay</arg2>
+                    <ignoreCase>false</ignoreCase>
+                  </condition>
+                </org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+                <org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+                  <condition class="org.jenkins_ci.plugins.run_condition.logic.Or">
+                    <conditions>
+                      <org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+                        <condition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition">
+                          <arg1>${BuildType}</arg1>
+                          <arg2>MinAAB</arg2>
+                          <ignoreCase>false</ignoreCase>
+                        </condition>
+                      </org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+                      <org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+                        <condition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition">
+                          <arg1>${BuildType}</arg1>
+                          <arg2>MinAABDebug</arg2>
+                          <ignoreCase>false</ignoreCase>
+                        </condition>
+                      </org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+                    </conditions>
+                  </condition>
+                </org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+              </conditions>
+            </condition>
+          </org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+        </conditions>
+      </runCondition>
+      <conditionalbuilders>
+        <hudson.tasks.BatchFile>
+          <command>SET PROJ_PATH=%WORKSPACE%\%PRO_NAME%\shengwang&#xd;
+SET RELEASE_DIR=%WORKSPACE%\www\korea_main\&#xd;
+&#xd;
+SET ANDROID_PROJECT_PATH=%PROJ_PATH%\AndroidSDK\BuildModelProject\tgsw_google&#xd;
+SET OUT_PUT_DIR=%ANDROID_PROJECT_PATH%\build\outputs\bundle\koreaRelease&#xd;
+SET ORGIN_APK_NAME=tgsw_google-korea-release.aab&#xd;
+&#xd;
+CD %ANDROID_PROJECT_PATH%\install_time_asset_pack\src\main\assets\bin\Data\Managed\&#xd;
+CALL DEL /S /Q *.mdb&#xd;
+CALL DEL /S /Q *.pdb&#xd;
+&#xd;
+CD  %ANDROID_PROJECT_PATH%&#xd;
+ECHO ############### %CD%&#xd;
+CALL gradle.bat clean&#xd;
+CALL gradle.bat bundleR&#xd;
+&#xd;
+REM cd %OUT_PUT_DIR%&#xd;
+REM REN %ORGIN_APK_NAME% %BUILD_NUMBER%_korea_%BuildType%_1.0.%Subversion%.aab&#xd;
+REM xcopy /Y *.aab %RELEASE_DIR%\&#xd;
+&#xd;
+CD %ANDROID_PROJECT_PATH%\FairGuard&#xd;
+SET AAB_PATH=%OUT_PUT_DIR%\%ORGIN_APK_NAME%&#xd;
+SET OUT_AAB_PATH=%RELEASE_DIR%\%BUILD_NUMBER%_korea_%BuildType%_1.0.%Subversion%_signed.aab&#xd;
+java -jar FairGuard2.8.7.jar -optype_sign_jar -inputfile %AAB_PATH% -outputfile %OUT_AAB_PATH%&#xd;
+&#xd;
+&#xd;
+</command>
+          <configuredLocalRules/>
+        </hudson.tasks.BatchFile>
+      </conditionalbuilders>
+    </org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <condition class="org.jenkins_ci.plugins.run_condition.logic.And" plugin="run-condition@1.5">
+        <conditions>
+          <org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+            <condition class="org.jenkins_ci.plugins.run_condition.core.BooleanCondition">
+              <token>${GenApk}</token>
+            </condition>
+          </org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+          <org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+            <condition class="org.jenkins_ci.plugins.run_condition.logic.Not">
+              <condition class="org.jenkins_ci.plugins.run_condition.logic.Or">
+                <conditions>
+                  <org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+                    <condition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition">
+                      <arg1>${BuildType}</arg1>
+                      <arg2>GooglePlay</arg2>
+                      <ignoreCase>false</ignoreCase>
+                    </condition>
+                  </org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+                  <org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+                    <condition class="org.jenkins_ci.plugins.run_condition.logic.Or">
+                      <conditions>
+                        <org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+                          <condition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition">
+                            <arg1>${BuildType}</arg1>
+                            <arg2>MinAAB</arg2>
+                            <ignoreCase>false</ignoreCase>
+                          </condition>
+                        </org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+                        <org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+                          <condition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition">
+                            <arg1>${BuildType}</arg1>
+                            <arg2>MinAABDebug</arg2>
+                            <ignoreCase>false</ignoreCase>
+                          </condition>
+                        </org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+                      </conditions>
+                    </condition>
+                  </org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+                </conditions>
+              </condition>
+            </condition>
+          </org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+        </conditions>
+      </condition>
+      <buildStep class="hudson.tasks.BatchFile">
+        <command>SET PROJ_PATH=%WORKSPACE%\%PRO_NAME%\shengwang&#xd;
+SET RELEASE_DIR=%WORKSPACE%\www\korea_main\&#xd;
+&#xd;
+SET ANDROID_PROJECT_PATH=%PROJ_PATH%\AndroidSDK\BuildModelProject\tgsw&#xd;
+SET OUT_PUT_DIR=%ANDROID_PROJECT_PATH%\build\outputs\apk\korea\release&#xd;
+SET ORGIN_APK_NAME=tgsw-korea-release.apk&#xd;
+&#xd;
+CD %ANDROID_PROJECT_PATH%\src\main\assets\bin\Data\Managed\&#xd;
+REM DEL /S /Q *.mdb&#xd;
+REM DEL /S /Q *.pdb&#xd;
+&#xd;
+CD  %ANDROID_PROJECT_PATH%&#xd;
+REM ECHO ############### %CD%&#xd;
+CALL gradle.bat clean&#xd;
+CALL gradle.bat aR&#xd;
+&#xd;
+&#xd;
+cd %OUT_PUT_DIR%&#xd;
+REN %ORGIN_APK_NAME% %BUILD_NUMBER%_korea_%BuildType%_1.0.%Subversion%.apk&#xd;
+ECHO F|XCOPY /Y *.apk %RELEASE_DIR%\&#xd;
+</command>
+        <configuredLocalRules/>
+      </buildStep>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+      <runCondition class="org.jenkins_ci.plugins.run_condition.core.BooleanCondition" plugin="run-condition@1.5">
+        <token>${BuildPatch}</token>
+      </runCondition>
+      <conditionalbuilders>
+        <hudson.tasks.BatchFile>
+          <command>SET PROJ_PATH=%WORKSPACE%\%PRO_NAME%\shengwang&#xd;
+SET RELEASE_DIR=%WORKSPACE%\www\korea_main\&#xd;
+&#xd;
+SET OUT_PUT_DIR=%PROJ_PATH%\PatchBuild&#xd;
+SET DLL_OUT_PUT_DIR=%OUT_PUT_DIR%\pathdll&#xd;
+SET DLL_BASE_DIR=%OUT_PUT_DIR%\basedll&#xd;
+SET DLL_NEW_DIR=%OUT_PUT_DIR%\newdll&#xd;
+SET FILE_OUT_PUT_DIR=%OUT_PUT_DIR%\Res&#xd;
+&#xd;
+SET DIR_MANAGED=%PROJ_PATH%\AndroidSDK\BuildModelProject\tgsw\src\main\assets\bin\Data\Managed&#xd;
+&#xd;
+SET DIR_SAVE_PATCHFILE=%WORKSPACE%\%PRO_NAME%\patch&#xd;
+SET DIR_PATCHHISTORY=%PROJ_PATH%\PatchHistory\android\%BaseABDetail%&#xd;
+&#xd;
+if exist %DIR_SAVE_PATCHFILE% ( RD /S /Q %DIR_SAVE_PATCHFILE%)&#xd;
+mkdir %DIR_SAVE_PATCHFILE%&#xd;
+mkdir %DIR_SAVE_PATCHFILE%\Res&#xd;
+&#xd;
+if exist %OUT_PUT_DIR% ( RD /S /Q %OUT_PUT_DIR%)&#xd;
+mkdir %OUT_PUT_DIR%&#xd;
+mkdir %DLL_OUT_PUT_DIR%&#xd;
+mkdir %DLL_BASE_DIR%&#xd;
+mkdir %DLL_NEW_DIR%&#xd;
+mkdir %FILE_OUT_PUT_DIR%&#xd;
+&#xd;
+cd %OUT_PUT_DIR%&#xd;
+&#xd;
+ECHO F|XCOPY /Y /F  %DIR_MANAGED%\*.dll %DLL_NEW_DIR%\&#xd;
+&#xd;
+ECHO F|XCOPY /Y /F %DIR_PATCHHISTORY%\abdetail.info %OUT_PUT_DIR%\&#xd;
+REN abdetail.info baseabdetail&#xd;
+ECHO F|XCOPY /Y /F  %PROJ_PATH%\Assets\abdetail.info %OUT_PUT_DIR%\&#xd;
+REN abdetail.info newabdetail&#xd;
+ECHO F|XCOPY /Y /F  %PROJ_PATH%\Assets\StreamingAssets\AssetBundles\dep.all  %OUT_PUT_DIR%\&#xd;
+REN dep.all newdep&#xd;
+&#xd;
+&#xd;
+</command>
+          <configuredLocalRules/>
+        </hudson.tasks.BatchFile>
+        <org.jenkinsci.plugins.unity3d.Unity3dBuilder plugin="unity3d-plugin@1.3">
+          <unity3dName>Unity20180418f</unity3dName>
+          <argLine>-projectPath ${WORKSPACE}/${PRO_NAME}/shengwang -executeMethod PatchBuilder.BuildPatchFile -quit -batchmode -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_patch.log</argLine>
+          <unstableReturnCodes></unstableReturnCodes>
+        </org.jenkinsci.plugins.unity3d.Unity3dBuilder>
+        <hudson.tasks.BatchFile>
+          <command>SET PROJ_PATH=%WORKSPACE%\%PRO_NAME%\shengwang&#xd;
+SET RELEASE_DIR=%WORKSPACE%\www\korea_main\patch&#xd;
+&#xd;
+SET OUT_PUT_DIR=%PROJ_PATH%\PatchBuild&#xd;
+SET DLL_OUT_PUT_DIR=%OUT_PUT_DIR%\pathdll&#xd;
+SET FILE_OUT_PUT_DIR=%OUT_PUT_DIR%\Res&#xd;
+&#xd;
+SET DIR_SAVE_PATCHFILE=%WORKSPACE%\%PRO_NAME%\patch&#xd;
+SET ZIP_EXE=%WORKSPACE%\%PRO_NAME%\Tools\ZipTool\7z.exe&#xd;
+&#xd;
+ECHO F|XCOPY /Y /F %OUT_PUT_DIR%\UpdateInfo.txt %DIR_SAVE_PATCHFILE%\&#xd;
+ECHO F|XCOPY /Y /F %OUT_PUT_DIR%\UpdateInfo.txt %DIR_SAVE_PATCHFILE%\&#xd;
+ECHO F|XCOPY /Y /F %OUT_PUT_DIR%\dep.all %DIR_SAVE_PATCHFILE%\Res\dep.all&#xd;
+ECHO F|XCOPY /Y /F %DLL_OUT_PUT_DIR%\*.dll %DIR_SAVE_PATCHFILE%\Res\&#xd;
+ECHO F|XCOPY /Y /F %FILE_OUT_PUT_DIR%\*.ab %DIR_SAVE_PATCHFILE%\Res\&#xd;
+ECHO F|XCOPY /Y /F %PROJ_PATH%\Assets\StreamingAssets\VersionInfo.txt %DIR_SAVE_PATCHFILE%\&#xd;
+&#xd;
+&#xd;
+&#xd;
+CD %DIR_SAVE_PATCHFILE%&#xd;
+%ZIP_EXE% a %BUILD_NUMBER%_korea_android_1.0.%Subversion%.zip -mx0 VersionInfo.txt Res UpdateInfo.txt&#xd;
+ECHO F|XCOPY /Y *.zip %RELEASE_DIR%\</command>
+          <configuredLocalRules/>
+        </hudson.tasks.BatchFile>
+      </conditionalbuilders>
+    </org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>${PRO_NAME}/shengwang/Assets/StreamingAssets/VersionInfo.txt,${PRO_NAME}/shengwang/Assets/StreamingAssets/UpdateInfo.txt,${PRO_NAME}/shengwang/Assets/abdetail.info,${PRO_NAME}/shengwang/Assets/StreamingAssets/AssetBundles/dep.all</artifacts>
+      <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>true</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
+      <followSymlinks>false</followSymlinks>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.13"/>
+    <org.jenkinsci.plugins.buildnamesetter.BuildNameSetter plugin="build-name-setter@2.2.0">
+      <template>#${BUILD_NUMBER}-${BuildType}-svn:${SvnUpdateType}-apk:${GenApk}-patch:${BuildPatch}-appVer:1.0.${Subversion}-BVC:${BundleVerCode}</template>
+      <descriptionTemplate></descriptionTemplate>
+      <runAtStart>true</runAtStart>
+      <runAtEnd>true</runAtEnd>
+    </org.jenkinsci.plugins.buildnamesetter.BuildNameSetter>
+  </buildWrappers>
+</project>

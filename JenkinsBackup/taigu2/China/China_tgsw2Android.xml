@@ -1,0 +1,573 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?><project>
+  <actions/>
+  <description>注意：ab资源先使用该任务构建资源！然后再使用0430任务构建周更包和线上包，原因是：由于该任务是是使用unity20180419版本构建，而该版本unity构建出的apk包在android 12机器上会有问题，所以周更和线上包需要在unity20180430版本上构建，其中unity20180430构建周更和线上包时使用的资源是该任务构建后的资源（unity20180419版本构建的）</description>
+  <displayName>国服android版本-135机器unity20180419</displayName>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <io.jenkins.plugins.DingTalkJobProperty plugin="dingding-notifications@2.4.4">
+      <notifierConfigs>
+        <io.jenkins.plugins.DingTalkNotifierConfig>
+          <checked>true</checked>
+          <robotId>383fef76-d869-4802-afe7-70914793c412</robotId>
+          <robotName>jenkins</robotName>
+          <atAll>false</atAll>
+          <atMobile/>
+          <content>构建${PRO_NAME}-${BuildType}-更新${NeedSvnUpdate}-${GenApk}
+请查看请查看${BUILD_URL}/console
+下载地址：http://192.168.15.135:8080/ws/android/ctry/</content>
+          <noticeOccasions>
+            <string>SUCCESS</string>
+            <string>START</string>
+            <string>NOT_BUILT</string>
+            <string>ABORTED</string>
+            <string>FAILURE</string>
+            <string>UNSTABLE</string>
+          </noticeOccasions>
+        </io.jenkins.plugins.DingTalkNotifierConfig>
+      </notifierConfigs>
+    </io.jenkins.plugins.DingTalkJobProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.28"/>
+    <hudson.plugins.svn__partial__release__mgr.ui.JobPropertyImpl plugin="svn-partial-release-mgr@1.0.1"/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PRO_NAME</name>
+          <description>dlc6_android 资料片6分支
+dlc5_1_android 资料片5.1分支
+ob-dlc6-qingxuan  青玄战场卡顿测试分）
+main_android</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>dlc10_android</string>
+              <string>dlc9_android</string>
+              <string>dlc8_android</string>
+              <string>dlc7_android</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>BuildType</name>
+          <description>ResDebug 构建资源，构建debug版本
+NoResDebug 不构建资源，构建debug版本
+ResRelease   构建资源，构建release版本
+NoResRelease  不构建资源，构建release版本</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>None</string>
+              <string>NoResDebug</string>
+              <string>ResDebug</string>
+              <string>NoResRelease</string>
+              <string>ResRelease</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>GenCJApk</name>
+          <description>是否生成初见apk包</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>ARM_TYPE</name>
+          <description>None 初见母包使用改选项，渠道包需要分别构建32位和64位
+ARM_32 可代码更新
+ARM_64 无法代码更新</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>ARM_32</string>
+              <string>ARM_64</string>
+              <string>None</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>SvnUpdateType</name>
+          <description>UpdateNoRevert 更新svn，不revert
+UpdateAndRevert 更新svn，并revert</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>None</string>
+              <string>UpdateNoRevert</string>
+              <string>UpdateAndRevert</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>GenPackage</name>
+          <description>生成apk包,生成聚合包</description>
+          <defaultValue>true</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>Subversion</name>
+          <description>版本号末尾数</description>
+          <defaultValue>6</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>BuildPatch</name>
+          <description>构建补丁</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>BaseABDetail</name>
+          <description>43_dlc6 资料片6
+20211020_dic5_1 资料片5</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>491_dlc10</string>
+              <string>425_dlc9</string>
+              <string>368_dlc8</string>
+              <string>251_dlc7</string>
+              <string>1_baseVer</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>OnlyResPatch</name>
+          <description>是否只生成资源补丁，不生产apk包</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>Mac_wushuang</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <customWorkspace>/Volumes/SSD</customWorkspace>
+  <builders>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <condition class="org.jenkins_ci.plugins.run_condition.logic.Not" plugin="run-condition@1.5">
+        <condition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition">
+          <arg1>${SvnUpdateType}</arg1>
+          <arg2>None</arg2>
+          <ignoreCase>false</ignoreCase>
+        </condition>
+      </condition>
+      <buildStep class="hudson.tasks.Shell">
+        <command>PROJ_PATH=$WORKSPACE/$PRO_NAME/shengwang
+SVN_USERNAME=lisongyu
+SVN_USERPWD=25285
+if [ $SvnUpdateType = UpdateAndRevert ];then
+	cd $PROJ_PATH
+    svn cleanup --username=$SVN_USERNAME --password=$SVN_USERPWD
+    svn revert --username=$SVN_USERNAME --password=$SVN_USERPWD -R .
+    svn update --username=$SVN_USERNAME --password=$SVN_USERPWD
+elif [ $SvnUpdateType = UpdateNoRevert ];then
+	cd $PROJ_PATH
+    svn cleanup --username=$SVN_USERNAME --password=$SVN_USERPWD.
+    svn update --username=$SVN_USERNAME --password=$SVN_USERPWD
+    cd $PROJ_PATH/ProjectSettings/
+    svn revert .
+fi
+</command>
+        <configuredLocalRules/>
+      </buildStep>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+    <hudson.tasks.Shell>
+      <command>PROJ_PATH=$WORKSPACE/$PRO_NAME/shengwang
+ANDROID_PROJECT_PATH=$PROJ_PATH/AndroidSDK/BuildModelProject/tgsw
+cd $ANDROID_PROJECT_PATH
+if [ $BuildType != None ];then
+   rm -rf src/main/jniLibs
+   SVN_USERNAME=lisongyu
+   SVN_USERPWD=25285
+   svn cleanup --username=$SVN_USERNAME --password=$SVN_USERPWD
+   svn revert --username=$SVN_USERNAME --password=$SVN_USERPWD -R .
+   svn update --username=$SVN_USERNAME --password=$SVN_USERPWD
+fi
+</command>
+      <configuredLocalRules/>
+    </hudson.tasks.Shell>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <condition class="org.jenkins_ci.plugins.run_condition.logic.And" plugin="run-condition@1.5">
+        <conditions>
+          <org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+            <condition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition">
+              <arg1>${ARM_TYPE}</arg1>
+              <arg2>ARM_64</arg2>
+              <ignoreCase>false</ignoreCase>
+            </condition>
+          </org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+          <org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+            <condition class="org.jenkins_ci.plugins.run_condition.core.AlwaysRun"/>
+          </org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+        </conditions>
+      </condition>
+      <buildStep class="org.jenkinsci.plugins.unity3d.Unity3dBuilder" plugin="unity3d-plugin@1.3">
+        <unity3dName>Unity20180418f</unity3dName>
+        <argLine>-projectPath ${WORKSPACE}/${PRO_NAME}/shengwang -disable-assembly-updater -executeMethod PlayerGenerator.SwitchToIL2CPPArm64 -quit -batchmode -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_android.log</argLine>
+        <unstableReturnCodes/>
+      </buildStep>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+      <runCondition class="org.jenkins_ci.plugins.run_condition.logic.And" plugin="run-condition@1.5">
+        <conditions>
+          <org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+            <condition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition">
+              <arg1>${ARM_TYPE}</arg1>
+              <arg2>ARM_32</arg2>
+              <ignoreCase>false</ignoreCase>
+            </condition>
+          </org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+          <org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+            <condition class="org.jenkins_ci.plugins.run_condition.core.AlwaysRun"/>
+          </org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+        </conditions>
+      </runCondition>
+      <conditionalbuilders>
+        <org.jenkinsci.plugins.unity3d.Unity3dBuilder plugin="unity3d-plugin@1.3">
+          <unity3dName>Unity20180418f</unity3dName>
+          <argLine>-projectPath ${WORKSPACE}/${PRO_NAME}/shengwang -disable-assembly-updater -executeMethod PlayerGenerator.SwitchToMonoArm32 -quit -batchmode -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_android.log</argLine>
+          <unstableReturnCodes/>
+        </org.jenkinsci.plugins.unity3d.Unity3dBuilder>
+      </conditionalbuilders>
+    </org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <condition class="org.jenkins_ci.plugins.run_condition.logic.Not" plugin="run-condition@1.5">
+        <condition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition">
+          <arg1>${BuildType}</arg1>
+          <arg2>None</arg2>
+          <ignoreCase>false</ignoreCase>
+        </condition>
+      </condition>
+      <buildStep class="hudson.tasks.Shell">
+        <command>PROJ_PATH=$WORKSPACE/$PRO_NAME/shengwang
+ANDROID_PROJECT_PATH=$PROJ_PATH/AndroidSDK/BuildModelProject/tgsw
+OUT_PUT_DIR=$ANDROID_PROJECT_PATH/build/outputs/apk/chujian/release
+
+
+rm -rf $PROJ_PATH/BuildLog
+rm -rf $OUT_PUT_DIR
+rm -rf $PROJ_PATH/Library/ScriptAssemblies/*
+rm -rf $PROJ_PATH/Assets/Script/*
+
+mkdir -p $OUT_PUT_DIR
+
+FILE_NAME="Demo_""$(date +%Y.%m.%d)"".apk"
+echo $Subversion&gt;$PROJ_PATH"/version"
+echo $OUT_PUT_DIR/$FILE_NAME&gt;$PROJ_PATH"/buildLocation"
+
+
+cp -rf $PROJ_PATH/hotfix/hotfix/iLScript/* $PROJ_PATH/Assets/Script/
+
+
+
+
+</command>
+        <configuredLocalRules/>
+      </buildStep>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+      <runCondition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition" plugin="run-condition@1.5">
+        <arg1>${BuildType}</arg1>
+        <arg2>ResDebug</arg2>
+        <ignoreCase>false</ignoreCase>
+      </runCondition>
+      <conditionalbuilders>
+        <org.jenkinsci.plugins.unity3d.Unity3dBuilder plugin="unity3d-plugin@1.3">
+          <unity3dName>Unity20180418f</unity3dName>
+          <argLine>-projectPath ${WORKSPACE}/${PRO_NAME}/shengwang -disable-assembly-updater -executeMethod PlayerGenerator.ExportGoogleProjectDebug -quit -batchmode -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_android.log</argLine>
+          <unstableReturnCodes/>
+        </org.jenkinsci.plugins.unity3d.Unity3dBuilder>
+      </conditionalbuilders>
+    </org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+      <runCondition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition" plugin="run-condition@1.5">
+        <arg1>${BuildType}</arg1>
+        <arg2>NoResDebug</arg2>
+        <ignoreCase>false</ignoreCase>
+      </runCondition>
+      <conditionalbuilders>
+        <org.jenkinsci.plugins.unity3d.Unity3dBuilder plugin="unity3d-plugin@1.3">
+          <unity3dName>Unity20180418f</unity3dName>
+          <argLine>-projectPath ${WORKSPACE}/${PRO_NAME}/shengwang -disable-assembly-updater -executeMethod PlayerGenerator.ExportGoogleProjectNoResDebug -quit -batchmode -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_android.log</argLine>
+          <unstableReturnCodes/>
+        </org.jenkinsci.plugins.unity3d.Unity3dBuilder>
+      </conditionalbuilders>
+    </org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+      <runCondition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition" plugin="run-condition@1.5">
+        <arg1>${BuildType}</arg1>
+        <arg2>ResRelease</arg2>
+        <ignoreCase>false</ignoreCase>
+      </runCondition>
+      <conditionalbuilders>
+        <org.jenkinsci.plugins.unity3d.Unity3dBuilder plugin="unity3d-plugin@1.3">
+          <unity3dName>Unity20180418f</unity3dName>
+          <argLine>-projectPath ${WORKSPACE}/${PRO_NAME}/shengwang -disable-assembly-updater -executeMethod PlayerGenerator.ExportGoogleProjectRelease -quit -batchmode -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_android.log</argLine>
+          <unstableReturnCodes/>
+        </org.jenkinsci.plugins.unity3d.Unity3dBuilder>
+      </conditionalbuilders>
+    </org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+      <runCondition class="org.jenkins_ci.plugins.run_condition.core.StringsMatchCondition" plugin="run-condition@1.5">
+        <arg1>${BuildType}</arg1>
+        <arg2>NoResRelease</arg2>
+        <ignoreCase>false</ignoreCase>
+      </runCondition>
+      <conditionalbuilders>
+        <org.jenkinsci.plugins.unity3d.Unity3dBuilder plugin="unity3d-plugin@1.3">
+          <unity3dName>Unity20180418f</unity3dName>
+          <argLine>-projectPath ${WORKSPACE}/${PRO_NAME}/shengwang -disable-assembly-updater -executeMethod PlayerGenerator.ExportGoogleProjectNoResRelease -quit -batchmode -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_android.log</argLine>
+          <unstableReturnCodes/>
+        </org.jenkinsci.plugins.unity3d.Unity3dBuilder>
+      </conditionalbuilders>
+    </org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <condition class="org.jenkins_ci.plugins.run_condition.logic.And" plugin="run-condition@1.5">
+        <conditions>
+          <org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+            <condition class="org.jenkins_ci.plugins.run_condition.core.BooleanCondition">
+              <token>${GenPackage}</token>
+            </condition>
+          </org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+          <org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+            <condition class="org.jenkins_ci.plugins.run_condition.logic.Not">
+              <condition class="org.jenkins_ci.plugins.run_condition.core.BooleanCondition">
+                <token>${OnlyResPatch}</token>
+              </condition>
+            </condition>
+          </org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+        </conditions>
+      </condition>
+      <buildStep class="hudson.tasks.Shell">
+        <command>PROJ_PATH=$WORKSPACE/$PRO_NAME/shengwang
+ANDROID_PROJECT_PATH=$PROJ_PATH/AndroidSDK/BuildModelProject/tgsw
+OUT_PUT_DIR=$ANDROID_PROJECT_PATH/build/outputs/apk/chujian/release
+RELEASE_DIR=$WORKSPACE/www/ws/android/ctry/
+JH_DIR=$HOME/CJSDK/jh_tool_new
+if [ ! -d $RELEASE_DIR ];then
+  mkdir -p $RELEASE_DIR
+fi
+if [ ! -d $RELEASE_DIR/patch/ ];then
+  mkdir -p $RELEASE_DIR/patch/
+fi
+
+NAME_PREFIX="release_${Subversion}"
+if [ $BuildType = NoResDebug ];then
+	NAME_PREFIX="debug_${Subversion}"
+elif [ $BuildType = ResDebug ];then
+	NAME_PREFIX="debug_${Subversion}"
+fi
+
+if [ $ARM_TYPE = ARM_32 ];then
+	NAME_PREFIX="arm32_"${NAME_PREFIX}
+elif [ $ARM_TYPE = ARM_64 ];then
+	NAME_PREFIX="arm64_"${NAME_PREFIX}
+fi
+
+#进入安卓工程目录
+cd  $ANDROID_PROJECT_PATH
+
+if [ $ARM_TYPE = ARM_64 ];then
+ 	#rm -rf src/main/jniLibs/armeabi-v7a
+    rm -rf build.gradle
+    cp NotInCommon/chujain_arm64/build.gradle build.gradle
+fi
+rm -f src/main/assets/bin/Data/Managed/*.mdb
+rm -f src/main/assets/bin/Data/Managed/*.pdb
+
+#dll加密，复制解密的mono库，用于安卓代码热更
+if [ $ARM_TYPE != ARM_64 ];then
+    chmod +x Encry
+    ./Encry
+	cp -f libmonobdwgc-2.0.so src/main/jniLibs/armeabi-v7a
+fi
+
+
+#开始gradle继承
+/opt/gradle/gradle-5.6.4/bin/gradle clean
+/opt/gradle/gradle-5.6.4/bin/gradle aR
+echo "Build Android Package Done.    `date`"
+
+cd $OUT_PUT_DIR
+rm -rf ${JH_DIR}/input/tg2/chujian.apk
+rm -rf ${JH_DIR}/output/tg2/oppo/tg2_oppo*
+cp tgsw* ${JH_DIR}/input/tg2/chujian.apk
+cp tgsw* $RELEASE_DIR/"$BUILD_NUMBER""_ws_juhe_$(date +%Y.%m.%d)_"$NAME_PREFIX".apk"
+
+if [ $BuildType = ResDebug ];then
+   cd $JH_DIR
+   python ./scripts/pack.py -g 14 -c oppo -r
+
+   cp ${JH_DIR}/output/tg2/oppo/tg2_oppo* $RELEASE_DIR/"$BUILD_NUMBER""_ws_oppo_$NAME_PREFIX_""$(date +%Y.%m.%d)"".apk"
+fi</command>
+        <configuredLocalRules/>
+      </buildStep>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <condition class="org.jenkins_ci.plugins.run_condition.logic.And" plugin="run-condition@1.5">
+        <conditions>
+          <org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+            <condition class="org.jenkins_ci.plugins.run_condition.core.BooleanCondition">
+              <token>${GenCJApk}</token>
+            </condition>
+          </org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+          <org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+            <condition class="org.jenkins_ci.plugins.run_condition.core.AlwaysRun"/>
+          </org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
+        </conditions>
+      </condition>
+      <buildStep class="hudson.tasks.Shell">
+        <command>PROJ_PATH=$WORKSPACE/$PRO_NAME/shengwang
+ANDROID_PROJECT_PATH=$PROJ_PATH/AndroidSDK/BuildModelProject/tgsw
+RELEASE_DIR=$WORKSPACE/www/ws/android/ctry/
+cd $ANDROID_PROJECT_PATH
+
+
+
+
+cd cpspatcher
+dotnet UpdateAppPram.dll 1302 signed
+
+cd $ANDROID_PROJECT_PATH
+if [ $ARM_TYPE = ARM_64 ];then
+ 	#rm -rf src/main/jniLibs/armeabi-v7a
+    rm -rf build.gradle
+    #cp NotInCommon/chujain_arm64/build.gradle build.gradle
+    if [ $GenCJApk ];then
+    	cp NotInCommon/chujain_arm64/build_cjonly.gradle build.gradle
+    fi
+fi
+
+/opt/gradle/gradle-5.6.4/bin/gradle clean
+/opt/gradle/gradle-5.6.4/bin/gradle aR
+
+
+NAME_PREFIX="release_${Subversion}"
+if [ $BuildType = NoResDebug ];then
+	NAME_PREFIX="debug_${Subversion}"
+elif [ $BuildType = ResDebug ];then
+	NAME_PREFIX="debug_${Subversion}"
+fi
+if [ $ARM_TYPE = ARM_32 ];then
+	NAME_PREFIX="arm32_"${NAME_PREFIX}
+elif [ $ARM_TYPE = ARM_64 ];then
+	NAME_PREFIX="arm64_"${NAME_PREFIX}
+fi
+cd build/outputs/apk/CJOnly/release
+cp tgsw* ${RELEASE_DIR}/$BUILD_NUMBER"_ws_cjonly_$(date +%Y.%m.%d)_1302_signed_"$NAME_PREFIX".apk"
+
+
+</command>
+        <configuredLocalRules/>
+      </buildStep>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder plugin="conditional-buildstep@1.4.1">
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+      <runCondition class="org.jenkins_ci.plugins.run_condition.core.BooleanCondition" plugin="run-condition@1.5">
+        <token>${BuildPatch}</token>
+      </runCondition>
+      <conditionalbuilders>
+        <hudson.tasks.Shell>
+          <command>PROJ_PATH=$WORKSPACE/$PRO_NAME/shengwang
+OUT_PUT_DIR=$PROJ_PATH/PatchBuild
+DLL_OUT_PUT_DIR=$OUT_PUT_DIR/pathdll
+DLL_BASE_DIR=$OUT_PUT_DIR/basedll
+DLL_NEW_DIR=$OUT_PUT_DIR/newdll
+FILE_OUT_PUT_DIR=$OUT_PUT_DIR/Res
+DIR_MANAGED=$PROJ_PATH/AndroidSDK/BuildModelProject/tgsw/src/main/assets/bin/Data/Managed
+DIR_PATCHHISTORY=$PROJ_PATH/PatchHistory/android/$BaseABDetail
+
+rm -rf $OUT_PUT_DIR
+mkdir -p $OUT_PUT_DIR
+mkdir -p $FILE_OUT_PUT_DIR
+mkdir -p $DLL_OUT_PUT_DIR
+mkdir -p $DLL_BASE_DIR
+mkdir -p $DLL_NEW_DIR
+
+
+#if [ $ARM_TYPE -ne ARM_64 ];then
+cp $DIR_MANAGED/*.dll $DLL_NEW_DIR/
+#fi
+cp $DIR_PATCHHISTORY/abdetail.info $OUT_PUT_DIR/baseabdetail
+cp $PROJ_PATH/Assets/abdetail.info $OUT_PUT_DIR/newabdetail
+cp $PROJ_PATH/Assets/StreamingAssets/AssetBundles/dep.all  $OUT_PUT_DIR/newdep
+
+
+
+
+
+</command>
+          <configuredLocalRules/>
+        </hudson.tasks.Shell>
+        <org.jenkinsci.plugins.unity3d.Unity3dBuilder plugin="unity3d-plugin@1.3">
+          <unity3dName>Unity20180418f</unity3dName>
+          <argLine>-projectPath ${WORKSPACE}/${PRO_NAME}/shengwang -disable-assembly-updater -executeMethod PatchBuilder.BuildPatchFile -quit -batchmode -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_android.log</argLine>
+          <unstableReturnCodes/>
+        </org.jenkinsci.plugins.unity3d.Unity3dBuilder>
+        <hudson.tasks.Shell>
+          <command>PROJ_PATH=$WORKSPACE/$PRO_NAME/shengwang
+OUT_PUT_DIR=$PROJ_PATH/PatchBuild
+FILE_OUT_PUT_DIR=$OUT_PUT_DIR/Res
+DIR_SAVE_PATCHFILE=$WORKSPACE/$PRO_NAME/patch
+DLL_OUT_PUT_DIR=$OUT_PUT_DIR/pathdll
+RELEASE_DIR=$WORKSPACE/www/ws/android/ctry/
+
+rm -rf $DIR_SAVE_PATCHFILE
+mkdir -p $DIR_SAVE_PATCHFILE
+mkdir -p $DIR_SAVE_PATCHFILE/Res
+
+cp $OUT_PUT_DIR/UpdateInfo.txt $DIR_SAVE_PATCHFILE/
+cp $OUT_PUT_DIR/dep.all $DIR_SAVE_PATCHFILE/Res/dep.all
+cp $FILE_OUT_PUT_DIR/*.ab $DIR_SAVE_PATCHFILE/Res/
+if [ $ARM_TYPE = ARM_64 ];then
+	NEW_PATCH_NAME="$BUILD_NUMBER""_""tgsw2_android_1.0.${Subversion}_${BuildType}""_arm64.zip"
+else
+    NEW_PATCH_NAME="$BUILD_NUMBER""_""tgsw2_android_1.0.${Subversion}_${BuildType}""_arm32.zip"
+	cp $DLL_OUT_PUT_DIR/*.dll $DIR_SAVE_PATCHFILE/Res/
+fi
+
+cp $PROJ_PATH/Assets/StreamingAssets/VersionInfo.txt $DIR_SAVE_PATCHFILE/
+
+cd $DIR_SAVE_PATCHFILE/
+pwd
+
+zip tmp_batch.zip Res/* UpdateInfo.txt VersionInfo.txt
+
+#NEW_PATCH_NAME="$BUILD_NUMBER""_""tgsw2_android_1.0.${Subversion}_${BuildType}"".zip"
+
+cp tmp_batch.zip $RELEASE_DIR/patch/$NEW_PATCH_NAME
+
+</command>
+          <configuredLocalRules/>
+        </hudson.tasks.Shell>
+      </conditionalbuilders>
+    </org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>${PRO_NAME}/shengwang/Assets/StreamingAssets/VersionInfo.txt,${PRO_NAME}/shengwang/Assets/abdetail.info,${PRO_NAME}/shengwang/Assets/StreamingAssets/AssetBundles/dep.all</artifacts>
+      <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
+      <followSymlinks>false</followSymlinks>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.13"/>
+    <org.jenkinsci.plugins.buildnamesetter.BuildNameSetter plugin="build-name-setter@2.2.0">
+      <template>#${BUILD_NUMBER}-${PRO_NAME}-${BuildType}-svn:${SvnUpdateType}-GenPackage:${GenPackage}-Subversion:${Subversion}-BuildPatch:${BuildPatch}_ARM:${ARM_TYPE}-${BaseABDetail}-GenCJApk:${GenCJApk}-OnlyResPatch:${OnlyResPatch}</template>
+      <descriptionTemplate/>
+      <runAtStart>true</runAtStart>
+      <runAtEnd>true</runAtEnd>
+    </org.jenkinsci.plugins.buildnamesetter.BuildNameSetter>
+  </buildWrappers>
+</project>

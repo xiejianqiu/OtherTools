@@ -1,0 +1,290 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PRO_NAME</name>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>Trunk</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>Platform</name>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>Android</string>
+              <string>iOS</string>
+              <string>WebGL</string>
+              <string>Windows</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>BuildRes</name>
+          <description>是否构建资源</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>ResVer</name>
+          <description>资源版本号</description>
+          <defaultValue>1.0.0.1</defaultValue>
+          <trim>true</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>RemoveManifest</name>
+          <description>是否删除资源清单</description>
+          <defaultValue>true</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>IsBuildPkg</name>
+          <description>//构建安装包或者导出xcode或者webgl工程</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>IsDebug</name>
+          <description>是否切换到测试模式</description>
+          <defaultValue>true</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>VersionName</name>
+          <description>App版本号</description>
+          <defaultValue>1.0.0</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>VersionCode</name>
+          <description>App版本Code</description>
+          <defaultValue>1</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PkgType</name>
+          <description>AllRes 安装包包含所有资源
+NoRes安装包包含不包含资源
+HalfRes安装包包含包含部分资源</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>AllRes</string>
+              <string>NoRes</string>
+              <string>HalfRes</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>IsAAB</name>
+          <description>是否为AAB包</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>UseIL2CPP</name>
+          <description>将脚本端切换到IL2CPP，否为mono</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>BuildPatch</name>
+          <description>构建补丁</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>AbdetailVer</name>
+          <description>基础资源清单存放目录</description>
+          <defaultValue>1_baseVer</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>ABNameWithHash</name>
+          <description>生成的补丁，ab资源名称是否需要待遇hash值，目前只有webgl需要勾选</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>StripEngineCode</name>
+          <description>是否裁剪引擎代码</description>
+          <defaultValue>true</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>StripLvl</name>
+          <description>代码裁剪等级</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>Disabled</string>
+              <string>Low</string>
+              <string>Medium</string>
+              <string>High</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>OutputPath</name>
+          <description>导出路径（app工程导出路径）空值有代码指定</description>
+          <trim>true</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>AssetLoadType</name>
+          <description>WEBGL首包资源存放在CDN：0, 本地：1</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>CDN</string>
+              <string>PKG</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>IsUseBat</name>
+          <description>用于判断是使用shell还是bat脚本，</description>
+          <defaultValue>true</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>Identify</name>
+          <description>Identify</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>trunk</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <customWorkspace>E:\WROK_SPACE</customWorkspace>
+  <builders>
+    <org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder plugin="conditional-buildstep@1.4.2">
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+      <runCondition class="org.jenkins_ci.plugins.run_condition.core.BooleanCondition" plugin="run-condition@1.5">
+        <token>${IsUseBat}</token>
+      </runCondition>
+      <conditionalbuilders>
+        <hudson.tasks.BatchFile>
+          <command>SET SVN_USERNAME=taigu1build&#xd;
+SET SVN_USERPWD=123456&#xd;
+SET SVNEXE=&quot;D:\Program Files\TortoiseSVN\bin\svn.exe&quot;&#xd;
+if %BuildRes% == true (&#xd;
+  cd %PROJ_PATH%&#xd;
+  CALL %SVNEXE% cleanup --username=%SVN_USERNAME% --password=%SVN_USERPWD%&#xd;
+  CALL %SVNEXE% revert --username=%SVN_USERNAME% --password=%SVN_USERPWD% -R .&#xd;
+  CALL %SVNEXE% update --username=%SVN_USERNAME% --password=%SVN_USERPWD%&#xd;
+  echo &quot;Update Done.    `date`&quot;&#xd;
+) else (&#xd;
+  cd %PROJ_PATH%&#xd;
+  CALL %SVNEXE% cleanup --username=%SVN_USERNAME% --password=%SVN_USERPWD%&#xd;
+  CALL %SVNEXE% update --username=%SVN_USERNAME% --password=%SVN_USERPWD%&#xd;
+  echo &quot;Update Done.    `date`&quot;&#xd;
+)&#xd;
+&#xd;
+SET PROJ_PATH=%WORKSPACE%\%PRO_NAME%\shengwang&#xd;
+SET HOTFIX_LINKING=%PROJ_PATH%\Assets\hotfix&#xd;
+SET HOTFIX_PROJ=%PROJ_PATH%\hotfix\hotfix\iLScript&#xd;
+&#xd;
+if exist %HOTFIX_LINKING% ( RD /S /Q %HOTFIX_LINKING% )&#xd;
+&#xd;
+MKLINK /J %HOTFIX_LINKING% %HOTFIX_PROJ%</command>
+          <configuredLocalRules/>
+        </hudson.tasks.BatchFile>
+        <org.jenkinsci.plugins.unity3d.Unity3dBuilder plugin="unity3d-plugin@1.3">
+          <unity3dName>unity20180436</unity3dName>
+          <argLine>-projectPath ${PRO_NAME}/shengwang -batchMode -disable-assembly-updater -executeMethod Jenkins.JenkinsBuild.BuildMain -quit -batchmode -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_android.log -buildTarget ${Platform} ABNameWithHash ${ABNameWithHash} StripLvl ${StripLvl} StripEngineCode ${StripEngineCode} UseIL2CPP ${UseIL2CPP} AssetLoadType ${AssetLoadType} BuildPatch ${BuildPatch} AbdetailVer ${AbdetailVer} Platform ${Platform} BuildRes ${BuildRes} ResVer ${ResVer} IsDebug ${IsDebug} IsAAB ${IsAAB} IsBuildPkg ${IsBuildPkg} VersionName ${VersionName} VersionCode ${VersionCode} PkgType ${PkgType} OutputPath ${OutputPath} RemoveManifest ${RemoveManifest}</argLine>
+          <unstableReturnCodes></unstableReturnCodes>
+        </org.jenkinsci.plugins.unity3d.Unity3dBuilder>
+        <hudson.tasks.BatchFile>
+          <command>setlocal enabledelayedexpansion&#xd;
+SET GRADLE_CMD=D:\gradle-6.7.1\bin\gradle.bat&#xd;
+SET PROJ_PATH=%WORKSPACE%\%PRO_NAME%\shengwang&#xd;
+SET ANDROID_PROJECT_PATH=%PROJ_PATH%\AndroidSDK\BuildModelProject\tgsw&#xd;
+SET OUT_PUT_DIR=%ANDROID_PROJECT_PATH%\build\outputs\apk\TChinese\release&#xd;
+SET RELEASE_DIR=%WORKSPACE%\www\%Identify%\%PRO_NAME%\1.0.%VersionName%\&#xd;
+ECHO ========== %Gradle6.7.1%&#xd;
+if %IsBuildPkg% == true (&#xd;
+	&#xd;
+	MKDIR %RELEASE_DIR%&#xd;
+	&#xd;
+	SET NEW_APK_NAME%=%BUILD_NUMBER%_%Identify%_%PkgType%_%VersionName%_%VersionCode%.apk&#xd;
+&#xd;
+	CD %ANDROID_PROJECT_PATH%\src\main\assets\bin\Data\Managed\&#xd;
+	REM DEL /S /Q *.mdb&#xd;
+	REM DEL /S /Q *.pdb&#xd;
+&#xd;
+	SET SVN_USERNAME=taigu1build&#xd;
+	SET SVN_USERPWD=123456&#xd;
+	CD %ANDROID_PROJECT_PATH%\src\main\res&#xd;
+	svn revert --username=%SVN_USERNAME% --password=%SVN_USERPWD% -R .&#xd;
+&#xd;
+	CD  %ANDROID_PROJECT_PATH%&#xd;
+	REM ECHO ############### %CD%&#xd;
+&#xd;
+	ECHO F|XCOPY /Y NoCommon\TChinese\build.gradle %ANDROID_PROJECT_PATH%\&#xd;
+	CALL gradle.bat clean&#xd;
+	CALL gradle.bat aR&#xd;
+	CD build\outputs\apk\TChinese\release&#xd;
+	REM CD build\outputs\apk\TChinese\release&#xd;
+	REN tgsw-TChinese-release.apk %NEW_APK_NAME%&#xd;
+	ECHO F|XCOPY /Y *.apk %RELEASE_DIR%\&#xd;
+)</command>
+          <configuredLocalRules/>
+        </hudson.tasks.BatchFile>
+      </conditionalbuilders>
+    </org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder plugin="conditional-buildstep@1.4.2">
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+      <runCondition class="org.jenkins_ci.plugins.run_condition.logic.Not" plugin="run-condition@1.5">
+        <condition class="org.jenkins_ci.plugins.run_condition.core.BooleanCondition">
+          <token>${IsUseBat}</token>
+        </condition>
+      </runCondition>
+      <conditionalbuilders>
+        <hudson.tasks.Shell>
+          <command>SVN_USERNAME=taigu1build
+if [ $BuildRes ];then
+  cd $PROJ_PATH
+  CALL svn cleanup --username=$SVN_USERNAME --password=$SVN_USERPWD
+  CALL svn revert --username=$SVN_USERNAME --password=$SVN_USERPWD -R .
+  CALL svn update --username=$SVN_USERNAME --password=$SVN_USERPWD
+  echo &quot;Update Done.    `date`&quot;
+else
+  cd $PROJ_PATH
+  CALL svn cleanup --username=$SVN_USERNAME --password=$SVN_USERPWD
+  CALL svn update --username=$SVN_USERNAME --password=$SVN_USERPWD
+  echo &quot;Update Done.    `date`&quot;
+fi
+
+PROJ_PATH=$WORKSPACE\$PRO_NAME\shengwang
+HOTFIX_LINKING=$PROJ_PATH\Assets\hotfix
+HOTFIX_PROJ=$PROJ_PATH\hotfix\hotfix\iLScript
+
+if [ -d $HOTFIX_LINKING ] then;
+	rm -rf $HOTFIX_LINKING
+fi
+
+ln -s $HOTFIX_PROJ $HOTFIX_LINKING </command>
+          <configuredLocalRules/>
+        </hudson.tasks.Shell>
+        <org.jenkinsci.plugins.unity3d.Unity3dBuilder plugin="unity3d-plugin@1.3">
+          <unity3dName>unity20180436</unity3dName>
+          <argLine>-projectPath ${PRO_NAME}/shengwang -batchMode -disable-assembly-updater -executeMethod Jenkins.JenkinsBuild.BuildMain -quit -batchmode -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_android.log -buildTarget ${Platform} ABNameWithHash ${ABNameWithHash} StripLvl ${StripLvl} StripEngineCode ${StripEngineCode} UseIL2CPP ${UseIL2CPP} AssetLoadType ${AssetLoadType} BuildPatch ${BuildPatch} AbdetailVer ${AbdetailVer} Platform ${Platform} BuildRes ${BuildRes} ResVer ${ResVer} IsDebug ${IsDebug} IsAAB ${IsAAB} IsBuildPkg ${IsBuildPkg} VersionName ${VersionName} VersionCode ${VersionCode} PkgType ${PkgType} OutputPath ${OutputPath} RemoveManifest ${RemoveManifest}</argLine>
+          <unstableReturnCodes></unstableReturnCodes>
+        </org.jenkinsci.plugins.unity3d.Unity3dBuilder>
+      </conditionalbuilders>
+    </org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder>
+  </builders>
+  <publishers/>
+  <buildWrappers>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.21"/>
+    <org.jenkinsci.plugins.buildnamesetter.BuildNameSetter plugin="build-name-setter@2.2.0">
+      <template>#${BUILD_NUMBER}-BuildRes:${BuildRes}-ResVer:${ResVer}-IsBuildPkg:${IsBuildPkg}(${VersionName}-${VersionCode},${PkgType}-IsDebug:${IsDebug}-IsAAB:${IsAAB})-BuildPatch:${BuildPatch}(${AbdetailVer})</template>
+      <descriptionTemplate>q#${BUILD_NUMBER}-BuildRes:${BuildRes}(${ResVer})-IsBuildPkg:${IsBuildPkg}(${VersionName,${PkgType},${VersionCode}})</descriptionTemplate>
+      <runAtStart>true</runAtStart>
+      <runAtEnd>true</runAtEnd>
+    </org.jenkinsci.plugins.buildnamesetter.BuildNameSetter>
+  </buildWrappers>
+</project>
