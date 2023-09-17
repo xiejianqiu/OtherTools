@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Language": {
+      "commandName": "Project",
+      "commandLineArgs": "Mode 14\r\nSRC_TB_DIR D:\\WORK_SPACE\\Trunk_Lang\\\\shengwang\\Assets\\BundleData\\Tables\r\nDST_TB_DIR D:\\WORK_SPACE\\Trunk_Lang\\\\shengwang\\Assets\\BundleData\\Tables_vietnam\r\nLangInfo D:\\WORK_SPACE\\Trunk_Lang\\\\Language\\langInfo.txt\r\nAddChinese D:\\WORK_SPACE\\Trunk_Lang\\\\Language\\add_chinese.txt\r\nRecordFile D:\\WORK_SPACE\\Trunk_Lang\\\\Language\\record_cnfile.txt\r\nDstLang VIETNAM\r\nFanYi D:\\WORK_SPACE\\Trunk_Lang\\\\Language\\20230808\\UIText_Vietnam.txt\r\nCOL_CN 0\r\nCOL_Dst 1\r\nPrefabInfo D:\\WORK_SPACE\\Trunk_Lang\\\\shengwang\\Assets\\BundleData\\Tables_vietnam\\PrefabLangInfo.txt"
+    }
+  }
+}
