@@ -1,0 +1,5 @@
+adb forward tcp:55199 localabstract:Unity-com.jy.tgsw3.quick
+adb connect 127.0.0.1:5555
+adb forward --remove-all
+adb kill-server
+adb start-server
