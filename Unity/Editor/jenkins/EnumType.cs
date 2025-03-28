@@ -10,18 +10,61 @@ namespace Jenkins
         BuildRes,//构建打包所有资源
         ResVer,//资源版本号
         IsDebug,//是否为debug包
-        IsAAB,//是否为AAB包
+        BuildPkgType,//AAB,APK,APKAndAAB,IOS
         IsBuildPkg, //构建安装包或者导出xcode或者webgl工程
         VersionName,//版本号
         VersionCode,//版本Code
-        PkgType,//0：整包（带有全部资源），1：中包（带部分资源），2：小包（不带资源）
+        PkgType,//AllRes：整包（带有全部资源），HalfRes：中包（带部分资源），NoRes：小包（不带资源）
         OutputPath,//导出路径
         RemoveManifest,//是否删除资源清单
+        BuildPatch,//构建补丁
+        AbdetailVer,//基础资源清单存放目录
+        AssetLoadType,//WEBGL首包资源存放在CDN：0, 本地：1
+        UseIL2CPP,//将脚本端切换到IL2CPP
+        StripEngineCode,//裁剪引擎代码
+        StripLvl,//裁剪级别从Disabled,Low,Medium,Hight
+        ABNameWithHash,//ab名称是否带有hash
+        UseHotFix,//是否使用代码热更,
+        PkgName,//设置包名
+        Macro,//设置宏
+        BuildMode,//构建模式，3:构建所有资源，2：构建表数据，1：构建构建热更代码
+        IsABTest,//是否未AB测试包
+        UseTgswOS,//android使用tgsw_os
+        EncryAB,//是否加密AB资源
+        ObfucateCode,//是否混淆代码
+
+        /// <summary>
+        /// 是否生成自定义资源包
+        /// </summary>
+        BuildResPkg,
+        /// <summary>
+        /// 资源包名称
+        /// </summary>
+        PkgFileName,
     }
     public enum PkgType { 
         AllRes,
         HalfRes,
         NoRes
+    }
+    public enum BuildMode
+    {
+        BuildAll=0,
+        BuidHotfix = 1,
+        BuildTb=2,
+        BuildTbAndHotfix=3,
+    }
+    public enum AssetLoadType
+    {
+        CDN,
+        PKG,
+    }
+    public enum BuildPkgType
+    { 
+        APK,
+        AAB,
+        APKAndAAB,
+        IOS
     }
     public class PargmaTypeCheck {
         private Dictionary<PargmaType, string> argsDict;
@@ -86,6 +129,10 @@ namespace Jenkins
         }
         public bool HasKey(PargmaType type) {
             return argsDict.ContainsKey(type);
+        }
+        public void SetValue(PargmaType type,string val)
+        {
+            argsDict[type] = val;
         }
     }
 }
