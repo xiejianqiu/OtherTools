@@ -2,17 +2,21 @@
 <project>
   <actions/>
   <description></description>
+  <displayName>1.tgsw3-ios版本</displayName>
   <keepDependencies>false</keepDependencies>
   <properties>
-    <io.jenkins.plugins.DingTalkJobProperty plugin="dingding-notifications@2.4.10">
+    <io.jenkins.plugins.DingTalkJobProperty plugin="dingding-notifications@2.7.0">
       <notifierConfigs>
         <io.jenkins.plugins.DingTalkNotifierConfig>
+          <raw>false</raw>
+          <disabled>false</disabled>
           <checked>true</checked>
-          <robotId>bf53f8ff-8df3-46f9-860c-cd22c6d01feb</robotId>
+          <robotId>e0338ca3-623f-458b-8ba5-061b2e9723fc</robotId>
           <robotName>jenkins</robotName>
-          <atAll>true</atAll>
+          <atAll>false</atAll>
           <atMobile></atMobile>
           <content></content>
+          <message></message>
           <noticeOccasions>
             <string>SUCCESS</string>
             <string>START</string>
@@ -30,7 +34,7 @@
           <name>PRO_NAME</name>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>Trunk</string>
+              <string>tg3_yhlm</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -55,6 +59,18 @@
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>BuildMode</name>
+          <description>资源构建模式</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>BuildAll</string>
+              <string>BuildTbAndHotfix</string>
+              <string>BuidHotfix</string>
+              <string>BuildTb</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
         <hudson.model.BooleanParameterDefinition>
           <name>RemoveManifest</name>
           <description>是否删除资源清单</description>
@@ -71,6 +87,26 @@
           <defaultValue>1.0.0.1</defaultValue>
           <trim>true</trim>
         </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>Macro</name>
+          <description>LY_COMMON 联运默认版本
+LY_ZX 坠星大陆
+LY_BT_LZ 梨子专服
+LY_BT BT版本
+LY_BT_1Y BT一元
+LY_SELF QuickSDK官网自发版本
+LY_SELF_NOQG 非QuickGame版本</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>MLQUICK</string>
+              <string>U1GAME_QK</string>
+              <string>U1GAME</string>
+              <string>LY_SELF_NOQG</string>
+              <string>USE_CUSTOM_ACCOUNT</string>
+              <string>ENABLE_GAME_EVENT_LOG</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
         <hudson.model.BooleanParameterDefinition>
           <name>IsBuildPkg</name>
           <description>//构建安装包或者导出xcode或者webgl工程</description>
@@ -98,7 +134,7 @@
         <hudson.model.StringParameterDefinition>
           <name>VersionCode</name>
           <description>App版本Code</description>
-          <defaultValue>1</defaultValue>
+          <defaultValue>2</defaultValue>
           <trim>false</trim>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
@@ -129,12 +165,17 @@ HalfRes安装包包含包含部分资源</description>
           <description>构建补丁</description>
           <defaultValue>false</defaultValue>
         </hudson.model.BooleanParameterDefinition>
-        <hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
           <name>AbdetailVer</name>
-          <description>基础资源清单存放目录</description>
-          <defaultValue>1_baseVer</defaultValue>
-          <trim>false</trim>
-        </hudson.model.StringParameterDefinition>
+          <description>5_1.0.0.1 坠星大陆
+基础资源清单存放目录</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>cdn_abdetail</string>
+              <string>1_baseVer</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
         <hudson.model.BooleanParameterDefinition>
           <name>ABNameWithHash</name>
           <description>生成的补丁，ab资源名称是否需要待遇hash值，目前只有webgl需要勾选</description>
@@ -177,10 +218,25 @@ HalfRes安装包包含包含部分资源</description>
           <description>Identify</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>trunk</string>
+              <string>u1game</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>UseHotFix</name>
+          <description>是否使用代码热更</description>
+          <defaultValue>true</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>EncryAB</name>
+          <description>是否加密AB资源</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>ObfucateCode</name>
+          <description>是否混淆代码</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
@@ -192,11 +248,11 @@ HalfRes安装包包含包含部分资源</description>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers/>
   <concurrentBuild>false</concurrentBuild>
-  <customWorkspace>/Users/TGSW_del/</customWorkspace>
+  <customWorkspace>/Volumes/kingston/TGSW</customWorkspace>
   <builders>
-    <org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder plugin="conditional-buildstep@1.4.2">
-      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
-      <runCondition class="org.jenkins_ci.plugins.run_condition.logic.Not" plugin="run-condition@1.5">
+    <org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder plugin="conditional-buildstep@1.4.3">
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.7"/>
+      <runCondition class="org.jenkins_ci.plugins.run_condition.logic.Not" plugin="run-condition@1.7">
         <condition class="org.jenkins_ci.plugins.run_condition.core.BooleanCondition">
           <token>${OnlyBuildProject}</token>
         </condition>
@@ -219,7 +275,8 @@ elif [ $SvnUpdateType = UpdateNoRevert ];then
     $SVNCMD cleanup --username=$SVN_USERNAME --password=$SVN_USERPWD.
     $SVNCMD update --username=$SVN_USERNAME --password=$SVN_USERPWD
 fi
-
+cd $PROJ_PATH/ProjectSettings
+$SVNCMD revert --username=$SVN_USERNAME --password=$SVN_USERPWD -R . 
 PROJ_PATH=$WORKSPACE/$PRO_NAME/shengwang
 XCODE_PROJECT_PATH=$WORKSPACE/$PRO_NAME/xcodeproject
 OUT_PUT_DIR=$HOME/Desktop/Build/iOS
@@ -229,40 +286,58 @@ rm -rf $PROJ_PATH/BuildLog
 rm -rf $OUT_PUT_DIR
 rm -rf $PROJ_PATH/Library/ScriptAssemblies/*
 rm -rf $PROJ_PATH/Assets/Script/*
-rm -rf $XCODE_PROJECT_PATH
-
 mkdir -p $OUT_PUT_DIR
-mkdir -p $XCODE_PROJECT_PATH
+
+if [$IsBuildPkg ];then
+	rm -rf $XCODE_PROJECT_PATH
+    mkdir -p $XCODE_PROJECT_PATH
+fi
 
 HOTFIX_LINKING=$PROJ_PATH/Assets/hotfix
-HOTFIX_PROJ=$PROJ_PATH/hotfix/hotfix/iLScript
-if [ ! -d $HOTFIX_LINKING ];then
-	ln -s $HOTFIX_PROJ $HOTFIX_LINKING
+if [ $UseHotFix == false ];then
+  HOTFIX_PROJ=$PROJ_PATH/hotfix/hotfix/iLScript
+  if [ ! -d $HOTFIX_LINKING ];then
+      ln -s $HOTFIX_PROJ $HOTFIX_LINKING
+  fi
+else
+	rm -rf $HOTFIX_LINKING
 fi
-cd $PROJ_PATH/hotfix</command>
+
+#COMMON_LINKING=$PROJ_PATH/Assets/common
+#COMMON_PROJ=$PROJ_PATH/Common
+#if [ ! -d $COMMON_LINKING ];then
+#  ln -s $COMMON_PROJ $COMMON_LINKING
+#fi
+#rm -rf $PROJ_PATH/Assets/Plugins/Common.dll
+#rm -rf $PROJ_PATH/Assets/Plugins/Common.dll.mdb</command>
           <configuredLocalRules/>
         </hudson.tasks.Shell>
         <org.jenkinsci.plugins.unity3d.Unity3dBuilder plugin="unity3d-plugin@1.3">
           <unity3dName>unity20180436</unity3dName>
-          <argLine>-projectPath ${WORKSPACE}/${PRO_NAME}/shengwang -nographics -batchMode -disable-assembly-updater -executeMethod Jenkins.JenkinsBuild.BuildMain -quit -batchmode  -buildTarget ${Platform}  -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_android.log ABNameWithHash $ABNameWithHash StripLvl $StripLvl StripEngineCode $StripEngineCode UseIL2CPP $UseIL2CPP AssetLoadType $AssetLoadType BuildPatch $BuildPatch AbdetailVer $AbdetailVer Platform $Platform BuildRes $BuildRes ResVer $ResVer IsDebug $IsDebug BuildPkgType $BuildPkgType IsBuildPkg $IsBuildPkg VersionName $VersionName VersionCode $VersionCode  PkgType $PkgType OutputPath $OutputPath RemoveManifest $RemoveManifest</argLine>
+          <argLine>-projectPath ${PRO_NAME}/shengwang -batchMode -disable-assembly-updater -executeMethod Jenkins.JenkinsBuild.CheckUseHotfix -quit -batchmode -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_android.log -buildTarget ${Platform} UseHotFix ${UseHotFix} Macro ${Macro} EncryAB ${EncryAB} ObfucateCode ${ObfucateCode} IsBuildPkg ${IsBuildPkg}</argLine>
+          <unstableReturnCodes></unstableReturnCodes>
+        </org.jenkinsci.plugins.unity3d.Unity3dBuilder>
+        <org.jenkinsci.plugins.unity3d.Unity3dBuilder plugin="unity3d-plugin@1.3">
+          <unity3dName>unity20180436</unity3dName>
+          <argLine>-projectPath ${WORKSPACE}/${PRO_NAME}/shengwang -nographics -batchMode -disable-assembly-updater -executeMethod Jenkins.JenkinsBuild.BuildMain -quit -batchmode  -buildTarget ${Platform}  -logFile ${WORKSPACE}/${PRO_NAME}/shengwang/BuildLog/build_android.log ABNameWithHash $ABNameWithHash StripLvl $StripLvl StripEngineCode $StripEngineCode UseIL2CPP $UseIL2CPP AssetLoadType $AssetLoadType BuildPatch $BuildPatch AbdetailVer $AbdetailVer Platform $Platform BuildRes $BuildRes ResVer $ResVer IsDebug $IsDebug BuildPkgType $BuildPkgType IsBuildPkg $IsBuildPkg VersionName $VersionName VersionCode $VersionCode  PkgType $PkgType OutputPath $OutputPath RemoveManifest $RemoveManifest  BuildMode ${BuildMode} EncryAB ${EncryAB} ObfucateCode ${ObfucateCode}</argLine>
           <unstableReturnCodes></unstableReturnCodes>
         </org.jenkinsci.plugins.unity3d.Unity3dBuilder>
       </conditionalbuilders>
     </org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder>
-    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.4.2">
-      <condition class="org.jenkins_ci.plugins.run_condition.core.BooleanCondition" plugin="run-condition@1.5">
-        <token>${IsBuildPkg}</token>
-      </condition>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.4.3">
+      <condition class="org.jenkins_ci.plugins.run_condition.core.NeverRun" plugin="run-condition@1.7"/>
       <buildStep class="hudson.tasks.Shell">
         <command>XCODE_PROJECT_PATH=$WORKSPACE/$PRO_NAME/xcodeproject
 OUT_PUT_DIR=$HOME/Desktop/Build/iOS
 mkdir -p $OUT_PUT_DIR
 
-RELEASE_DIR=$WORKSPACE/www/$PRO_NAME/
+RELEASE_DIR=$WORKSPACE/www/$PRO_NAME/$VersionName
+mkdir -p $RELEASE_DIR
 
 security unlock-keychain -p &quot;111111&quot; ~/Library/Keychains/login.keychain
 cd $XCODE_PROJECT_PATH
-xcodebuild
+#xcodebuild
+xcodebuild -UseModernBuildSystem=YES 
 
 IPA_NAME_PREFIX=$Identify
 if [ $IsDebug ];then
@@ -278,10 +353,10 @@ mv $ipa_name $RELEASE_DIR/
 </command>
         <configuredLocalRules/>
       </buildStep>
-      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.7"/>
     </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
-    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.4.2">
-      <condition class="org.jenkins_ci.plugins.run_condition.core.BooleanCondition" plugin="run-condition@1.5">
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.4.3">
+      <condition class="org.jenkins_ci.plugins.run_condition.core.BooleanCondition" plugin="run-condition@1.7">
         <token>${BuildPatch}</token>
       </condition>
       <buildStep class="hudson.tasks.Shell">
@@ -289,7 +364,7 @@ mv $ipa_name $RELEASE_DIR/
 RELEASE_DIR=$WORKSPACE/www/$PRO_NAME/patch
 mkdir -p $RELEASE_DIR
 OUT_PUT_DIR=$PROJ_PATH/PatchBuild
-NEW_PATCH_NAME=&quot;$BUILD_NUMBER&quot; &quot;_&quot;&quot;$Identify&quot;_ios_1.0.&quot;${Subversion}&quot;&quot;.zip&quot;
+NEW_PATCH_NAME=&quot;$BUILD_NUMBER&quot;&quot;_&quot;&quot;$Identify&quot;_ios_&quot;$ResVer&quot;_e&quot;$EncryAB&quot;&quot;.zip&quot;
 
 cd $OUT_PUT_DIR
 zip tmp_batch.zip Res/* UpdateInfo.txt VersionInfo.txt
@@ -299,14 +374,24 @@ cp tmp_batch.zip $RELEASE_DIR/$NEW_PATCH_NAME
 </command>
         <configuredLocalRules/>
       </buildStep>
-      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.5"/>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.7"/>
     </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
   </builders>
-  <publishers/>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>${PRO_NAME}/shengwang/Assets/StreamingAssets/VersionInfo.txt,${PRO_NAME}/shengwang/Assets/StreamingAssets/UpdateInfo.txt,${PRO_NAME}/shengwang/Assets/abdetail.info,${PRO_NAME}/shengwang/Assets/StreamingAssets/AssetBundles/dep.all</artifacts>
+      <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
+      <followSymlinks>false</followSymlinks>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
   <buildWrappers>
-    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.21"/>
-    <org.jenkinsci.plugins.buildnamesetter.BuildNameSetter plugin="build-name-setter@2.2.0">
-      <template>#${BUILD_NUMBER}-${SvnUpdateType}-BuildRes:${BuildRes}-ResVer:${ResVer}-IsBuildPkg:${IsBuildPkg}(${VersionName}-${VersionCode},${PkgType}-IsDebug:${IsDebug}-${BuildPkgType})-BuildPatch:${BuildPatch}(${AbdetailVer})</template>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.26"/>
+    <org.jenkinsci.plugins.buildnamesetter.BuildNameSetter plugin="build-name-setter@2.4.0">
+      <template>#${BUILD_NUMBER}-${SvnUpdateType}-BuildRes:${BuildRes}-ResVer:${ResVer}-IsBuildPkg:${IsBuildPkg}(${VersionName}-${VersionCode},${PkgType}-IsDebug:${IsDebug}-${BuildPkgType})-BuildPatch:${BuildPatch}(${AbdetailVer})-buildMode: ${BuildMode}-${Macro}-EncryAB:${EncryAB}-ObfucateCode:${ObfucateCode}</template>
       <descriptionTemplate>q#${BUILD_NUMBER}-BuildRes:${BuildRes}(${ResVer})-IsBuildPkg:${IsBuildPkg}(${VersionName,${PkgType},${VersionCode}})</descriptionTemplate>
       <runAtStart>true</runAtStart>
       <runAtEnd>true</runAtEnd>
