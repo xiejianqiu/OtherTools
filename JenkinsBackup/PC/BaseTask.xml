@@ -423,20 +423,27 @@ ENDLOCAL</command>
         </org.jenkinsci.plugins.unity3d.Unity3dBuilder>
         <hudson.tasks.BatchFile>
           <command>SETLOCAL enabledelayedexpansion&#xd;
-&#xd;
+SET ZIP_EXE=C:\ZipTool\7z.exe&#xd;
 SET PROJ_PATH=%WORKSPACE%\%PRO_NAME%\shengwang&#xd;
-SET RELEASE_PATCH_DIR=%WORKSPACE%\www\%PRO_NAME%\PKGS&#xd;
+&#xd;
+SET RELEASE_PATCH_DIR=%WORKSPACE%\www\%PRO_NAME%\patch&#xd;
 SET DIR_SAVE_PATCHFILE=%PROJ_PATH%\PkgBuild&#xd;
 MKDIR !RELEASE_PATCH_DIR!&#xd;
 &#xd;
 CD !DIR_SAVE_PATCHFILE!&#xd;
+&#xd;
+SET RELEASE_PATCH_DIR_PKG=%WORKSPACE%\www\%PRO_NAME%\PKGS&#xd;
 SET PKGNAME=%BUILD_NUMBER%_%Identify%_%ResVer%.kg&#xd;
 SET PKGINFONAME=%BUILD_NUMBER%_%Identify%_%ResVer%.info&#xd;
 REN pkg.kg %PKGNAME%&#xd;
 REN pkg.info %PKGINFONAME%&#xd;
+REM ECHO F|XCOPY /Y %PKGNAME% !RELEASE_PATCH_DIR_PKG!&#xd;
+REM ECHO F|XCOPY /Y %PKGINFONAME% !RELEASE_PATCH_DIR_PKG!&#xd;
 &#xd;
-ECHO F|XCOPY /Y %PKGNAME% !RELEASE_PATCH_DIR!&#xd;
-ECHO F|XCOPY /Y %PKGINFONAME% !RELEASE_PATCH_DIR!&#xd;
+ECHO %PKGINFONAME%&gt;VersionPkgInfo.txt&#xd;
+SET PATCH_NAME=%BUILD_NUMBER%_%Identify%_windows_%ResVer%.zip&#xd;
+!ZIP_EXE! a !PATCH_NAME! -mx0 %PKGNAME% %PKGINFONAME% VersionPkgInfo.txt&#xd;
+ECHO F|XCOPY /Y *.zip !RELEASE_PATCH_DIR!&#xd;
 &#xd;
 ENDLOCAL</command>
           <configuredLocalRules/>

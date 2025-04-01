@@ -9,12 +9,12 @@
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
           <name>ResVer</name>
-          <defaultValue>1.0.0.3</defaultValue>
+          <defaultValue>1.0.0.20</defaultValue>
           <trim>false</trim>
         </hudson.model.StringParameterDefinition>
         <hudson.model.BooleanParameterDefinition>
           <name>IsBuildPkg</name>
-          <defaultValue>false</defaultValue>
+          <defaultValue>true</defaultValue>
         </hudson.model.BooleanParameterDefinition>
         <hudson.model.BooleanParameterDefinition>
           <name> IsDebug</name>
@@ -50,7 +50,7 @@
         <hudson.model.BooleanParameterDefinition>
           <name>BuildResPkg</name>
           <description>是否生成资源包</description>
-          <defaultValue>false</defaultValue>
+          <defaultValue>true</defaultValue>
         </hudson.model.BooleanParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
