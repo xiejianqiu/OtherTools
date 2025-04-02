@@ -50,7 +50,6 @@ public class AspectRatioController : MonoBehaviour
     private int pixelHeightOfCurrentScreen;
 
     #endregion 参数
-
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
     #region WinAPI
 
@@ -92,6 +91,23 @@ public class AspectRatioController : MonoBehaviour
     private static extern IntPtr SetWindowLong32(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
     [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr", CharSet = CharSet.Auto)]
     private static extern IntPtr SetWindowLong64(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+    private const int SW_HIDE = 0;
+    private const int SW_SHOW = 1;
+    [DllImport("user32.dll")]
+    private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool SetForegroundWindow(IntPtr hWnd);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr ProcessId);
+    [DllImport("user32.dll")]
+    public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetForegroundWindow();
+
     private const string UNITY_WND_CLASSNAME = "UnityWndClass";
     private IntPtr unityHWnd;
     private IntPtr oldWndProcPtr;
@@ -105,16 +121,21 @@ public class AspectRatioController : MonoBehaviour
 #endif
 
     #region UnityAPI
+    static public void RegisterQuitEvent()
+    {
+        //注册回调,应用程序想要退出时相应5.6版本不存在这个函数,尝试在OnApplicationQuit调用
+        if (!EnvUtils.IsUnity_Editor())
+        {
+            UnityEngine.Application.wantsToQuit += ApplicationWantsToQuit;
+        }
+    }
     void Awake()
     {
         Inst = this;
     }
     void Start()
     {
-        //注册回调,应用程序想要退出时相应5.6版本不存在这个函数,尝试在OnApplicationQuit调用
-#if !UNITY_EDITOR
-        UnityEngine.Application.wantsToQuit += ApplicationWantsToQuit;
-#endif
+
         //不要在Unity编辑模式中注册WindowProc回调函数,它会指向Unity编辑窗口的,而不是Game视图
 #if UNITY_STANDALONE_WIN
 
@@ -169,12 +190,12 @@ public class AspectRatioController : MonoBehaviour
             }
 
             Screen.SetResolution(width, height, true);
-            resolutionChangedEvent.Invoke(width, height, true);
+            resolutionChangedEvent?.Invoke(width, height, true);
         }
         else if (!Screen.fullScreen && wasFullscreenLastFrame)
         {
             Screen.SetResolution(setWith, setHeight, false);
-            resolutionChangedEvent.Invoke(setWith, setHeight, false);
+            resolutionChangedEvent?.Invoke(setWith, setHeight, false);
         }
         else if (!Screen.fullScreen && setWith != -1 && setHeight != -1 && (Screen.width != setWith || Screen.height != setHeight))
         {
@@ -182,7 +203,7 @@ public class AspectRatioController : MonoBehaviour
             setHeight = Screen.height;
             setWith = Mathf.RoundToInt(setHeight * aspect);
             Screen.SetResolution(setWith, setHeight, false);
-            resolutionChangedEvent.Invoke(setWith, setHeight, false);
+            resolutionChangedEvent?.Invoke(setWith, setHeight, false);
         }
         else if (!Screen.fullScreen)
         {
@@ -237,23 +258,24 @@ public class AspectRatioController : MonoBehaviour
     /// 退出时Quit被调用
     /// </summary>
     /// <returns>true:确认退出, false:取消退出 </returns>
-    private bool ApplicationWantsToQuit()
+    private static bool ApplicationWantsToQuit()
     {
-        if(!IsCanQuit)
+        Debug.LogError($"ApplicationWantsToQuit");
+        if(!AspectRatioController.Inst.IsCanQuit)
         {
             //Application.CancelQuit();
             return false;
         }
-        if (QuitBackCall != null)
+        if (AspectRatioController.Inst.QuitBackCall != null)
         {
-            QuitBackCall.Invoke();
+            AspectRatioController.Inst.QuitBackCall.Invoke();
             //Application.CancelQuit();
             return false;
         }
 
-        if (!quitStarted)
+        if (!AspectRatioController.Inst.quitStarted)
         {
-            StartCoroutine("DelayQuit");
+            AspectRatioController.Inst.StartCoroutine("DelayQuit");
             //Application.CancelQuit();
             return false;
         }
@@ -262,9 +284,9 @@ public class AspectRatioController : MonoBehaviour
 
     IEnumerator DelayQuit()
     {
-        #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
         SetWindowLong(unityHWnd, GMLP_WNDPROC, oldWndProcPtr);
-        #endif
+#endif
         yield return new WaitForEndOfFrame();
         quitStarted = true;
         Application.Quit();
@@ -328,7 +350,7 @@ public class AspectRatioController : MonoBehaviour
             rect.Right += borderWidth;
             rect.Bottom += borderHeight;
 
-            resolutionChangedEvent.Invoke(setWith, setHeight, Screen.fullScreen);
+            resolutionChangedEvent?.Invoke(setWith, setHeight, Screen.fullScreen);
 
             Marshal.StructureToPtr(rect, lParam, true);
         }
@@ -348,7 +370,30 @@ public class AspectRatioController : MonoBehaviour
 #elif UNITY_STANDALONE_OSX
 
 #endif
-#endregion RatioCtrl
+    #endregion RatioCtrl
+    public void ShowWindow(bool Show)
+    {
+        //IntPtr hWnd = System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle;
+        if(null == unityHWnd)
+        {
+            Debug.LogError("unityHWnd Is Null");
+            return;
+        }
+        ShowWindow(unityHWnd, Show? SW_SHOW:SW_HIDE);
+
+        //qq大厅显隐操作
+        //IntPtr hWnd = System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle;
+        //ShowWindow(hWnd, !Show ? SW_SHOW : SW_HIDE);
+    }
+    public void BringToFront()
+    {
+        if(null == unityHWnd)
+        {
+            Debug.LogError("BringToFront Is Null");
+            return;
+        }
+        SetForegroundWindow(unityHWnd);
+    }
 
     public override string ToString()
     {
@@ -361,5 +406,25 @@ public class AspectRatioController : MonoBehaviour
         text += " (aspectRatioWidth: " + aspectRatioWidth + " , aspectRatioHeight: " + aspectRatioHeight + ")\n";
         text += "(currentScreen: " + pixelWidthOfCurrentScreen + " , currentScreen: " + pixelHeightOfCurrentScreen + ")\n";
         return text;
+    }
+    //在登录进入场景后注册, 退出逻辑可参考GfxEventHandler.ShowExitGameMsgBox()
+    //注意!!!!!!!!!!确认退出时保证先调用UnRegQuitFunction(),否则无法退出!!!!!!!!!
+    //注意!!!!!!!!!!确认退出时保证先调用UnRegQuitFunction(),否则无法退出!!!!!!!!!
+    //注意!!!!!!!!!!确认退出时保证先调用UnRegQuitFunction(),否则无法退出!!!!!!!!!
+    //每退出一次callback执行一次,注意避免重复打开界面
+    public void RegQuitFunction(Action callback)
+    {
+        if (null != AspectRatioController.Inst)
+        {
+            AspectRatioController.Inst.QuitBackCall = callback;
+        }
+    }
+
+    public void UnRegQuitFunction()
+    {
+        if (null != AspectRatioController.Inst)
+        {
+            AspectRatioController.Inst.QuitBackCall = null;
+        }
     }
 }
