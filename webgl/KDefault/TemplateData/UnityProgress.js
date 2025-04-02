@@ -213,3 +213,9 @@ function ClientInit()
 	checkSupportWebgl();
 	ListenPasteEvent();
 }
+function GotoURL(url) {
+	location.href=url;
+}
+function OpenUrl(url) {
+	window.open(url) 
+}
