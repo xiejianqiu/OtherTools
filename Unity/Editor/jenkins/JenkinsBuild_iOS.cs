@@ -92,37 +92,9 @@ namespace Jenkins
         {
             try
             {
-                if (EnvUtils.IsLyBT1Y())
+                if (EnvUtils.IsDefault())
                 {
-                    PlayerSettings.productName = "太古神王2（0.1折无限充）";
-                }
-                else if (EnvUtils.IsLySZCX())
-                {
-                    PlayerSettings.productName = "天命契灵";
-                }
-                else if (EnvUtils.IsU1Game())
-                {
-                    PlayerSettings.productName = "剑与神灵";
-                }
-                else if (EnvUtils.IsMiaoLe())
-                {
-                    PlayerSettings.productName = "凡人修仙";
-                    if (EnvUtils.IsYJQY())
-                    {
-                        PlayerSettings.productName = "倚剑奇缘";
-                    }
-                    else if (EnvUtils.IsJYZT())
-                    {
-                        PlayerSettings.productName = "剑佑诸天";
-                    }
-                    else if (EnvUtils.IsJZTX())
-                    {
-                        PlayerSettings.productName = "剑指天下";
-                    }
-                }
-                else if (EnvUtils.IsMLQuick())
-                {
-                    PlayerSettings.productName = "凡人修仙-增强现实版";
+                    PlayerSettings.productName = "太古神王";
                 }
                 bool IsDebug = mPargmaTypeCheck.IsTrue(PargmaType.IsDebug);
                 PlayerGenerator.isOniOSDebugBuild = IsDebug;
@@ -142,7 +114,7 @@ namespace Jenkins
                 {
                     if (Directory.Exists(dir))
                     {
-                        Directory.Delete(dir,true);
+                        Directory.Delete(dir, true);
                     }
                 }
                 var cfgFilePath = $"{dstDir}TChineseSDK.projmods";
@@ -150,84 +122,22 @@ namespace Jenkins
                 {
                     File.Delete(cfgFilePath);
                 }
-                if (EnvUtils.IsLYLoveFun())
+               
+                PlayerGenerator.CopyDirectory("./iOSSDK/TChinese/", dstDir);
+                string sdkCodeFile = $"{dstDir}TChineseSDK/TChineseWrapper.m";
+                string logoFile = $"{dstDir}TChineseSDK/logo-bingo.png";
+                if (File.Exists(sdkCodeFile))
                 {
-                    PlayerGenerator.CopyDirectory("./iOSSDK/LoveFun/", dstDir);
+                    File.Delete(sdkCodeFile);
                 }
-                else if(EnvUtils.IsU1Game())
+                if (File.Exists(logoFile))
                 {
-                    PlayerSettings.applicationIdentifier = ChanConnector.PKG_IOS_U1Game;
-                    PlayerGenerator.CopyDirectory("./iOSSDK/U1GAME/", dstDir);
+                    File.Delete(logoFile);
                 }
-                else if (EnvUtils.IsMiaoLe())
+                if (EnvUtils.IsDefault())
                 {
-                    PlayerSettings.applicationIdentifier = ChanConnector.PKG_IOS_MiaoLe;
-                    PlayerGenerator.CopyDirectory("./iOSSDK/MiaoLe/", dstDir);
+                    File.Copy($"{dstDir}NoCommon/LY_DEFAULT/TChineseWrapper.m", $"{dstDir}TChineseSDK/TChineseWrapper.m");
                 }
-                else if (EnvUtils.IsMLQuick())
-                {
-                    PlayerSettings.applicationIdentifier = ChanConnector.PKG_IOS_MiaoLe;
-                    PlayerGenerator.CopyDirectory("./iOSSDK/Quick/", dstDir);
-                }
-                else
-                {
-                    PlayerGenerator.CopyDirectory("./iOSSDK/TChinese/", dstDir);
-                    string sdkCodeFile = $"{dstDir}TChineseSDK/TChineseWrapper.m";
-                    string logoFile = $"{dstDir}TChineseSDK/logo-bingo.png";
-                    if (File.Exists(sdkCodeFile))
-                    {
-                        File.Delete(sdkCodeFile);
-                    }
-                    if (File.Exists(logoFile))
-                    {
-                        File.Delete(logoFile);
-                    }
-                    if (EnvUtils.IsLYZX())
-                    {
-                        File.Copy($"{dstDir}NoCommon/LY_ZX/TChineseWrapper.m", $"{dstDir}TChineseSDK/TChineseWrapper.m");
-                    }
-                    else if (EnvUtils.IsLyBT())
-                    {
-                        File.Copy($"{dstDir}NoCommon/LY_BT/TChineseWrapper.m", $"{dstDir}TChineseSDK/TChineseWrapper.m");
-                    }
-                    else if (EnvUtils.IsLyBT1Y())
-                    {
-                        File.Copy($"{dstDir}NoCommon/LY_BT_1Y/TChineseWrapper.m", $"{dstDir}TChineseSDK/TChineseWrapper.m");
-                    }
-                    else if (EnvUtils.IsLyBTX7())
-                    {
-                        File.Copy($"{dstDir}NoCommon/LY_BT_X7/TChineseWrapper.m", $"{dstDir}TChineseSDK/TChineseWrapper.m");
-                    }
-                    else if (EnvUtils.IsLyBTGO())
-                    {
-                        File.Copy($"{dstDir}NoCommon/LY_BT_GO/TChineseWrapper.m", $"{dstDir}TChineseSDK/TChineseWrapper.m");
-                    }
-                    else if (EnvUtils.IsLyBTLZ())
-                    {
-                        File.Copy($"{dstDir}NoCommon/LY_BT_LZ/TChineseWrapper.m", $"{dstDir}TChineseSDK/TChineseWrapper.m");
-                    }
-                    else if (EnvUtils.IsLySZCX())
-                    {
-                        File.Copy($"{dstDir}NoCommon/LY_SZCX/TChineseWrapper.m", $"{dstDir}TChineseSDK/TChineseWrapper.m");
-                    }
-                    else if (EnvUtils.IsLyManDi())
-                    {
-                        File.Copy($"{dstDir}NoCommon/LY_MANDI/TChineseWrapper.m", $"{dstDir}TChineseSDK/TChineseWrapper.m");
-                    }
-                    else
-                    {
-                        if (EnvUtils.IsLYSelfNoQG())
-                        {
-                            File.Copy($"{dstDir}NoCommon/LY_SELF_NOQG/TChineseWrapper.m", $"{dstDir}TChineseSDK/TChineseWrapper.m");
-                        }
-                        else
-                        {
-                            File.Copy($"{dstDir}NoCommon/LY_SELF/TChineseWrapper.m", $"{dstDir}TChineseSDK/TChineseWrapper.m");
-                        }
-
-                    }
-                }
-
                 List<string> lstScenes = new List<string>();
                 EditorBuildSettingsScene[] scenes = EditorBuildSettings.scenes;
                 if (scenes != null)
@@ -257,55 +167,11 @@ namespace Jenkins
                 if (Enum.TryParse<PkgType>(mPargmaTypeCheck.GetValue(PargmaType.PkgType), true, out var pkgType))
                 {
                     string asset_path = outputPath + "/Data/Raw/AssetBundles";
-                    ExtractPatchRes(asset_path, pkgType,mPargmaTypeCheck.IsTrue(PargmaType.ABNameWithHash));
+                    ExtractPatchRes(asset_path, pkgType, mPargmaTypeCheck.IsTrue(PargmaType.ABNameWithHash));
                 }
-                if (EnvUtils.IsLYZX())
+                if (EnvUtils.IsDefault())
                 {
-                    File.Copy($"{dstDir}NoCommon/LY_ZX/logo-bingo.png", $"{outputPath}/logo-bingo.png", true);
-                }
-                else if (EnvUtils.IsLyBT())
-                {
-                    File.Copy($"{dstDir}NoCommon/LY_BT/logo-bingo.png", $"{outputPath}/logo-bingo.png", true);
-                }
-                else if (EnvUtils.IsLyBT1Y())
-                {
-                    File.Copy($"{dstDir}NoCommon/LY_BT_1Y/logo-bingo.png", $"{outputPath}/logo-bingo.png", true);
-                }
-                else if (EnvUtils.IsLyBTX7())
-                {
-                    File.Copy($"{dstDir}NoCommon/LY_BT_X7/logo-bingo.png", $"{outputPath}/logo-bingo.png", true);
-                }
-                else if (EnvUtils.IsLyBTGO())
-                {
-                    File.Copy($"{dstDir}NoCommon/LY_BT_GO/logo-bingo.png", $"{outputPath}/logo-bingo.png", true);
-                }
-                else if (EnvUtils.IsLyBTLZ())
-                {
-                    File.Copy($"{dstDir}NoCommon/LY_BT_LZ/logo-bingo.png", $"{outputPath}/logo-bingo.png", true);
-                }
-                else if (EnvUtils.IsLySZCX())
-                {
-                    File.Copy($"{dstDir}NoCommon/LY_SZCX/logo-bingo.png", $"{outputPath}/logo-bingo.png", true);
-                }
-                else if (EnvUtils.IsLyManDi())
-                {
-                    File.Copy($"{dstDir}NoCommon/LY_MANDI/logo-bingo.png", $"{outputPath}/logo-bingo.png", true);
-                }
-                else if (EnvUtils.IsU1Game())
-                {
-                    File.Copy("./iOSSDK/U1GAME/TChineseSDK/logo-bingo.png", $"{outputPath}/logo-bingo.png", true);
-                }
-                else
-                {
-                    if (EnvUtils.IsLYSelfNoQG())
-                    {
-                        File.Copy($"{dstDir}NoCommon/LY_SELF_NOQG/logo-bingo.png", $"{outputPath}/logo-bingo.png", true);
-                    }
-                    else
-                    {
-                        File.Copy($"{dstDir}NoCommon/LY_SELF/logo-bingo.png", $"{outputPath}/logo-bingo.png", true);
-                    }
-
+                    File.Copy($"{dstDir}NoCommon/LY_DEFAULT/logo-bingo.png", $"{outputPath}/logo-bingo.png");
                 }
             }
             catch (Exception ex)

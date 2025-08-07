@@ -13,7 +13,7 @@ namespace Jenkins
 {
     public partial class JenkinsBuild
     {
-        static string[] Platforms = { "Android", "iOS", "WebGL", "StandaloneWindows" };
+        static string[] Platforms = { "Android", "iOS", "WebGL", "Windows" };
         private static PargmaTypeCheck mPargmaTypeCheck = new PargmaTypeCheck();
         public static void BuildMain()
         {
@@ -21,7 +21,7 @@ namespace Jenkins
             {
                 PlayerSettings.SplashScreen.showUnityLogo = false;
                 UpdateProjectSetting(false);
-                //PlayerSettings.productName = @"太古神王2";
+                PlayerSettings.productName = @"太古神王2";
                 mPargmaTypeCheck.Init(Environment.GetCommandLineArgs());
                 bool buildRes = mPargmaTypeCheck.IsTrue(PargmaType.BuildRes);
                 string Platform = mPargmaTypeCheck.GetValue(PargmaType.Platform);
@@ -30,7 +30,7 @@ namespace Jenkins
                 string versionCode = mPargmaTypeCheck.GetValue(PargmaType.VersionCode);
                 bool RemoveManifest = mPargmaTypeCheck.IsTrue(PargmaType.RemoveManifest);
                 BuildTarget buildTarget = EditorUserBuildSettings.activeBuildTarget;
-                SetAppIcons();
+                //SetAppIcons();
                 #region 安装包版号设置
                 PlayerSettings.bundleVersion = versionName;
                 if (EnvUtils.IsUNITY_ANDROID())
@@ -121,16 +121,7 @@ namespace Jenkins
                 bool IsBuildPkg = mPargmaTypeCheck.IsTrue(PargmaType.IsBuildPkg);
                 if (IsBuildPkg)
                 {
-
-
-                    if (mPargmaTypeCheck.IsTrue(PargmaType.IsABTest))
-                    {
-                        RefreshScene.RefreshABTestSceneSetting();
-                    }
-                    else
-                    {
-                        RefreshScene.RefreshABSceneSetting();
-                    }
+                    RefreshScene.RefreshABSceneSetting();
                     if (Platform == Platforms[0])
                     {
                         BuildForAndroid();
@@ -142,10 +133,6 @@ namespace Jenkins
                     else if (Platform == Platforms[2])
                     {
                         BuildWebGl();
-                    }
-                    else if (Platform == Platforms[3])
-                    {
-                        BuildWindows();
                     }
                 }
                 #endregion
@@ -187,6 +174,7 @@ namespace Jenkins
         /// <summary>
         /// 根据参数开启hotfix
         /// </summary>
+        [MenuItem("jenkins/CheckUseHotfix")]
         public static void CheckUseHotfix()
         {
             //资源构建太慢
@@ -255,13 +243,22 @@ namespace Jenkins
             }
             PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, symbols);
             RefreshScene.RefreshEditorSceneSetting();
-            if (mPargmaTypeCheck.IsTrue(PargmaType.IsBuildPkg))
+            if (EnvUtils.IsUNITY_ANDROID())
             {
                 ReplaceFile("PlatformRes/DefaultIcon.png", "Assets/ResMS/Icon/DefaultIcon.png");
+                //ReplaceFile("PlatformRes/android/startup.png", "Assets/ResMS/UI/Texture/startup.png");
+                //ReplaceFile("PlatformRes/android/startup_en.png", "Assets/ResMS/English/UI/Texture/startup.png");
+            }
+            if (EnvUtils.IsUNITY_IOS())
+            {
+                ReplaceFile("PlatformRes/DefaultIcon.png", "Assets/ResMS/Icon/DefaultIcon.png");
+                //ReplaceFile("PlatformRes/ios/startup.png", "Assets/ResMS/UI/Texture/startup.png");
+                //ReplaceFile("PlatformRes/ios/startup_en.png", "Assets/ResMS/English/UI/Texture/startup.png");
             }
         }
         static void ReplaceFile(string srcFile, string tarFile)
         {
+            //Debug.LogError($"ReplaceFile {File.Exists(srcFile)}  {File.Exists(tarFile)}");
             if (File.Exists(srcFile) && File.Exists(tarFile))
             {
                 File.Copy(srcFile, tarFile, true);

@@ -27,10 +27,6 @@ namespace Jenkins
             }
             PlayerSettings.productName = "tgsw2";
             bool IsContainX86 = false;
-            if (EnvUtils.IsLyBTX7() || EnvUtils.IsMLQuickX86())
-            {
-                IsContainX86 = true;
-            }
             if (PlayerSettings.GetScriptingBackend(BuildTargetGroup.Android) == ScriptingImplementation.IL2CPP)
             {
                 if (IsContainX86)
@@ -72,7 +68,7 @@ namespace Jenkins
                     {
                         opts |= BuildOptions.ConnectWithProfiler;
                     }
-                    var resport = BuildPipeline.BuildPlayer(AndroidBuildTool.GetBuildScenes(mPargmaTypeCheck.IsTrue(PargmaType.IsABTest)).ToArray(), AndroidBuildTool.Config.PROJECT_GOOGLE_EXPORT, BuildTarget.Android, opts);
+                    var resport = BuildPipeline.BuildPlayer(AndroidBuildTool.GetBuildScenes().ToArray(), AndroidBuildTool.Config.PROJECT_GOOGLE_EXPORT, BuildTarget.Android, opts);
                    
                 }
                 else

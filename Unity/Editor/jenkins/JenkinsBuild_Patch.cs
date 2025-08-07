@@ -1,4 +1,5 @@
 ﻿using GameFramework;
+using JGGame;
 using LitJson;
 using System;
 using System.Collections.Generic;
@@ -94,14 +95,8 @@ namespace Jenkins
         static string PatchAbSavePath
         {
             get {
-                if (PathConfig.Instance.UseVerPath)
-                {
-                    return PatchBuilderFolder + PathConfig.Instance.ResFolderPath + $"/{mPargmaTypeCheck.GetValue(PargmaType.ResVer)}/";
-                }
-                else
-                {
-                    return PatchBuilderFolder + PathConfig.Instance.ResFolderPath + "/";
-                }
+                
+                return PatchBuilderFolder + PathConfig.Instance.ResFolderPath + "/";
             }
         }
         /// <summary>
@@ -583,16 +578,14 @@ namespace Jenkins
             var files = Directory.GetFiles(abSavePath, "*.ab", SearchOption.AllDirectories);
             AssetBundlePathHelper pathResolver = new AssetBundlePathHelper();
             var cntOfPackAsset = 0;
-            using (var fs = File.OpenWrite($"{abSavePath}/{pathResolver.ClientResName}"))
+            List<BaseFileInfo> lst = new List<BaseFileInfo>();
+            foreach (var file in files)
             {
-                StreamWriter writer = new StreamWriter(fs);
-                foreach (var file in files)
-                {
-                    writer.WriteLine(Path.GetFileName(file));
-                    cntOfPackAsset += 1;
-                }
-                writer.Flush();
+                lst.Add(new BaseFileInfo(file));
+                cntOfPackAsset += 1;
             }
+            File.WriteAllText($"{abSavePath}/{pathResolver.ClientResName}", JsonMapper.ToJson(lst.ToArray()), Encoding.UTF8);
+            
             Debug.LogError($"PackRes:{cntOfPackAsset}/{paDict.Count}, allAB:{cntOfAB}");
             GenerateUpdateInfo(IsABNameWithHash, abSavePath);
         }

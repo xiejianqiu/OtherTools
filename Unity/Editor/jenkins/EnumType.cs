@@ -32,7 +32,6 @@ namespace Jenkins
         UseTgswOS,//android使用tgsw_os
         EncryAB,//是否加密AB资源
         ObfucateCode,//是否混淆代码
-
         /// <summary>
         /// 是否生成自定义资源包
         /// </summary>

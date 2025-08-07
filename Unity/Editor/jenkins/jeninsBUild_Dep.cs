@@ -137,7 +137,7 @@ namespace Jenkins
             var infoMap = ReadDep(PathABSaveFolder + ABDepFile);
             if (Directory.Exists(tmpABPath))
             {
-                AssetBundle ab = AssetBundle.LoadFromFile(Environment.CurrentDirectory + "/AssetBundles/AssetBundles");
+                AssetBundle ab = AssetBundle.LoadFromFile(Environment.CurrentDirectory + "/" + PathABSaveFolder + "/AssetBundles");
                 AssetBundleManifest manifest = ab.LoadAsset("AssetBundleManifest") as AssetBundleManifest;
                 var files = Directory.GetFiles(tmpABPath, "*.ab", SearchOption.AllDirectories);
                 StringBuilder builder = new StringBuilder();

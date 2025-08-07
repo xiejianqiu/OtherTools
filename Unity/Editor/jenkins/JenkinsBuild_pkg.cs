@@ -21,16 +21,26 @@ namespace Jenkins
             var abdetail = mPargmaTypeCheck.GetValue(PargmaType.AbdetailVer);
             bool IsUpdateRes = !abdetail.Contains("1_baseVer");
             string pkgUrl = string.Empty;
+            string relativePath = string.Empty;
+            if (EnvUtils.IsUNITY_ANDROID())
+            {
+                relativePath = "Formal/android";
+            }
+            else if (EnvUtils.IsUNITY_IOS() || EnvUtils.IsUNITY_IPHONE())
+            {
+                relativePath = "Formal/apple";
+            }
             if (IsUpdateRes)
             {
-                pkgUrl = $"{URLConfig.Instance.GetCDNURL()}/StreamingAssets/{mPargmaTypeCheck.GetValue(PargmaType.PkgFileName)}";
+                
+                pkgUrl = $"{URLConfig.Instance.GetPkgUrl()}/{relativePath}/{mPargmaTypeCheck.GetValue(PargmaType.PkgFileName)}";
                 JGGame.PkgTool.BuildUpdatePkg(SrcFileDir: PatchBuilderFolder, pkgFile: pkgFile, pkgInfoFile: pkgFileInfo, mPargmaTypeCheck.GetValue(PargmaType.ResVer), pkgUrl);
             }
             else
             {
-                pkgUrl = $"{URLConfig.Instance.GetCDNURL()}/StreamingAssets/pkgs/{mPargmaTypeCheck.GetValue(PargmaType.PkgFileName)}";
-                string dlOrderUrl = $"{URLConfig.Instance.GetCDNURL()}/StreamingAssets/pkgs/lb_origin_cfg_win.txt";
-                JGGame.PkgTool.BuildAllResPkg(SrcFileDir: PatchBuilderFolder, pkgFile: pkgFile, pkgInfoFile: pkgFileInfo, mPargmaTypeCheck.GetValue(PargmaType.ResVer), pkgUrl, dlOrderUrl);
+                pkgUrl = $"{URLConfig.Instance.GetPkgUrl()}/{relativePath}/pkgs/{mPargmaTypeCheck.GetValue(PargmaType.PkgFileName)}";
+                string dlOrderUrl = $"{URLConfig.Instance.GetCDNURL()}/{relativePath}/pkgs/lb_origin_cfg_win.txt";
+                JGGame.PkgTool.BuildAllResPkg(SrcFileDir: PatchBuilderFolder, pkgFile: pkgFile, pkgInfoFile: pkgFileInfo, mPargmaTypeCheck.GetValue(PargmaType.ResVer), pkgUrl, dlOrderUrl, slientTask: 1, crazyTask:5);
             }
         }
         [MenuItem("jenkins/pkg/UnBuildPkg")]

@@ -128,11 +128,6 @@ namespace Jenkins
         {
             ResTool.PaseABNameToDebugName();
         }
-        [MenuItem("jenkins/乐变/导出UI资源和前三个场景")]
-        public static void GenerateDefaultRes()
-        {
-            ResTool.GenerateDefaultRes();
-        }
         [MenuItem("jenkins/乐变/收集小资源")]
         public static void CollectSmallAB()
         {
@@ -288,8 +283,6 @@ namespace Jenkins
         [MenuItem("jenkins/Encry/混淆ab资源到新目录")]
         public static void EnCryDir()
         {
-            if (!mPargmaTypeCheck.IsTrue(PargmaType.EncryAB))
-                return;
             EncryUtil.EncryDir(AssetBundlePathHelper.instance.BundleSavePath, AssetBundlePathHelper.instance.BundleSavePathEncry);
             var dep = AssetBundlePathHelper.instance.BundleSavePath + ABDepFile;
             var newdep = AssetBundlePathHelper.instance.BundleSavePathEncry + ABDepFile;
