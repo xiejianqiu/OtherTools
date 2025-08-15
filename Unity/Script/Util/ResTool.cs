@@ -202,6 +202,17 @@ public partial class ResTool
                 CollectDepRes(info.src.ToLower(), abdetailDict, lbCdnResSet);
             }    
         }
+        #region ab文件小的添加到包体内
+        string small_res_content = File.ReadAllText(lb_small_res);
+        string[] smallResArray = small_res_content.Split('\n', '\r');
+        foreach (var res in smallResArray)
+        {
+            if (res.StartsWith("#!"))
+                continue;
+            string src = res.Trim();
+            InApkResSet.Add(res);
+        }
+        #endregion
         HashSet<string> InApkAbSet = new HashSet<string>();
         foreach (var src in InApkResSet)
         {
